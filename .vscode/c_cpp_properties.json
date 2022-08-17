@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "/home/assume/Desktop/TLE_Navigation/devel/include/**",
+                "/opt/ros/noetic/include/**",
+                "/home/assume/Desktop/TLE_Navigation/src/TEL_1_0/include/**",
+                "/home/assume/Desktop/TLE_Navigation/src/action_test/include/**",
+                "/home/assume/Desktop/TLE_Navigation/src/mecanumLoc/include/**",
+                "/home/assume/Desktop/TLE_Navigation/src/nav-mec/include/**",
+                "/home/assume/Desktop/TLE_Navigation/src/navigation_test/include/**",
+                "/usr/include/**",
+                "${workspaceFolder}/include"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}
