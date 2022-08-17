@@ -54,6 +54,6 @@ private:
 
 // --- vars ---
 bool trigger = false;
-PointController pointControl(0, 1, 0);
+PointController pointControl(1., 0, 3.);
 
 #endif /* NAV_MEC_NODE_H_ */
