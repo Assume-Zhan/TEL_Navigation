@@ -5,6 +5,7 @@
 int main(int argc, char** argv){
     ros::init(argc, argv, "navMec_node");
     ros::NodeHandle navMec_nh;
+    constructVectors();
 
     // Here we act like a """server/client + pub/sub"""
     // Server will first receive data from smach, and trigger the pure pursuit.

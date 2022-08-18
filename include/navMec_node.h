@@ -35,7 +35,12 @@ public:
     // Reset prev_v
     void Reset_prev_v();
 
-    // Get how distance we can get
+    // Get distance from now position to goal position
+    double get_distance(geometry_msgs::Twist::ConstPtr);
+    double get_orientationErr(geometry_msgs::Twist::ConstPtr);
+
+    // Check
+    bool check_get_goal(geometry_msgs::Twist::ConstPtr);
 
 private:
     double goal_x = 0;
@@ -52,10 +57,39 @@ private:
 
     const double maxSpeed = 0.65;
     const double maxOmega = 1.2;
+
+    // Use V control
+    double CarV = 0;
+    double prevCarV = 0;
+    const double CarAccel = 0.2;
+    const double V_max = 0.4;
+
+    // DEVIATION
+    const double xyDeviation = 0.03;
+    const double tDeviation = 0.5;
 };
 
 // --- vars ---
 bool trigger = false;
-PointController pointControl(2, 0, 3.);
+PointController pointControl(2, 2, 4);
+
+// --- Need to be removed ---
+class Vector3{
+public:
+    Vector3(){}
+
+    void setxyz(double x, double y, double z){
+        this->x = x;
+        this->y = y;
+        this->theta = z;
+    }
+
+    double x, y, theta;
+};
+
+int count = 0;
+int maxCount = 3;
+Vector3 vectors[3];
+void constructVectors();
 
 #endif /* NAV_MEC_NODE_H_ */
