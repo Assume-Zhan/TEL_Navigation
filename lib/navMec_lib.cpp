@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 
 #include "navMec_node.h"
 
@@ -67,27 +68,53 @@ void PointController::set_vgoal(double x, double y, double z){
 geometry_msgs::Twist PointController::get_vgoal(geometry_msgs::Twist::ConstPtr msg, double time_diff){
     geometry_msgs::Twist cmd_vel;
 
-    // Transform goal position from map frame to odemetry frame
+    // Transform goal distance from map frame to odemetry frame
     double pha = msg->angular.z;
     double sinpha = std::sin(pha);
     double cospha = std::cos(pha);
-    double goalX = cospha * this->goal_x - sinpha * this->goal_y;
-    double goalY = sinpha * this->goal_x + cospha * this->goal_y;
 
-    double delta_x = goalX - msg->linear.x;
-    double delta_y = goalY - msg->linear.y;
-    double delta_theta = this->goal_theta - msg->angular.z;
+    double delta_x = (this->goal_x - msg->linear.x);
+    double delta_y = (this->goal_y - msg->linear.y);
+    double delta_theta = (this->goal_theta - msg->angular.z) * 0.6;
 
-    // v_next < a * time_diff + v_prev
-    double maxVx = std::min(this->maxSpeed, this->ax * time_diff + this->prev_vx);
-    double maxVy = std::min(this->maxSpeed, this->ay * time_diff + this->prev_vy);
-    double maxVw = std::min(this->maxOmega, this->az * time_diff + this->prev_omega);
+    double final_x = cospha * delta_x - sinpha * delta_y; final_x *= 0.45;
+    double final_y = sinpha * delta_x + cospha * delta_y; final_y *= 0.45;
 
-    // Bind delta_v
-    // Record v
-    this->prev_vx = cmd_vel.linear.x = std::max(-maxVx, std::min(maxVx, delta_x));
-    this->prev_vy = cmd_vel.linear.y = std::max(-maxVy, std::min(maxVy, delta_y));
-    this->prev_omega = cmd_vel.angular.z = std::max(-maxVw, std::min(maxVw, delta_theta));
+    // Get previous velocity by location_node
+    this->prev_vx = msg->angular.x;
+    this->prev_vy = msg->angular.y;
+    this->prev_omega = msg->linear.z;
+
+    // x : y
+    double x_all = abs(delta_x) / (abs(delta_x) + abs(delta_y));
+    double y_all = abs(delta_y) / (abs(delta_x) + abs(delta_y));
+
+    // Calculate max speed delta
+    double min_delta_vx;
+    if(final_x > this->prev_vx)
+        min_delta_vx = std::min(this->ax * time_diff, abs(final_x - this->prev_vx));
+    else
+        min_delta_vx = 0 - std::min(this->ax * time_diff, abs(final_x - this->prev_vx));
+
+    cmd_vel.linear.x = std::max(-this->maxSpeed, std::min(this->maxSpeed, this->prev_vx + min_delta_vx));
+
+    double min_delta_vy;
+    if(final_y > prev_vy)
+        min_delta_vy = std::min(this->ay * time_diff, abs(final_y - this->prev_vy));
+    else
+        min_delta_vy = 0 - std::min(this->ay * time_diff, abs(final_y - this->prev_vy));
+
+    cmd_vel.linear.y = std::max(-this->maxSpeed, std::min(this->maxSpeed, this->prev_vy + min_delta_vy));
+
+    double min_delta_omega;
+    if(delta_theta > prev_omega)
+        min_delta_omega = std::min(this->az * time_diff, abs(delta_theta - prev_omega));
+    else
+        min_delta_omega = 0 - std::min(this->az * time_diff, abs(delta_theta - prev_omega));
+
+    cmd_vel.angular.z = std::max(-this->maxOmega, std::min(this->maxOmega, this->prev_omega + min_delta_omega));
+
+    std::cout << final_x << ' ' << this->prev_vx << ' ' << this->ax * time_diff << '\n';
 
     return cmd_vel;
 }

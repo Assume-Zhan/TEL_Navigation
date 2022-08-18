@@ -35,6 +35,8 @@ public:
     // Reset prev_v
     void Reset_prev_v();
 
+    // Get how distance we can get
+
 private:
     double goal_x = 0;
     double goal_y = 0;
@@ -44,16 +46,16 @@ private:
     double prev_vy = 0;
     double prev_omega = 0;
 
-    const double ax = 0.06;
-    const double ay = 0.06;
-    const double az = 0.3;
+    const double ax = 0.1;
+    const double ay = 0.1;
+    const double az = 0.4;
 
-    const double maxSpeed = 0.25;
+    const double maxSpeed = 0.65;
     const double maxOmega = 1.2;
 };
 
 // --- vars ---
 bool trigger = false;
-PointController pointControl(1., 0, 3.);
+PointController pointControl(2, 0, 3.);
 
 #endif /* NAV_MEC_NODE_H_ */
