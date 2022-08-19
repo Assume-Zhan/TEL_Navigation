@@ -4,10 +4,12 @@
 #include "navMec_ros.h"
 
 // --- Implement callback functions ---
+/* Server Callback function */
 bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& res){
     return true;
 }
 
+/* Subscriber Callback function */
 void subCB(const geometry_msgs::Twist::ConstPtr& msg){
     // Subscribe location info from location node
 
@@ -63,9 +65,10 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 #endif /* DEBUGGER_MODE */
 }
 
-// --- Need to be removed ---
+
+// --- Need to be removed --- S
 void constructVectors(){
     vectors[0].setxyz(0, 0, 0);
     vectors[1].setxyz(2., 3., 0);
     vectors[2].setxyz(-1., 0, 3.);
-}
+}// --- Need to be removed --- E

@@ -22,7 +22,9 @@ void subCB(const geometry_msgs::Twist::ConstPtr&);
 bool trigger = false;
 PointController pointControl(2, 2, 4);
 
-// --- Need to be removed ---
+
+
+// --- Need to be removed --- S
 class Vector3{
 public:
     Vector3(){}
@@ -40,5 +42,6 @@ int count = 0;
 int maxCount = 3;
 Vector3 vectors[3];
 void constructVectors();
+// --- Need to be removed --- E
 
 #endif /* NAV_MEC_NODE_H_ */

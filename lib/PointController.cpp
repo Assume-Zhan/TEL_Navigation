@@ -1,6 +1,6 @@
 #include "PointController.h"
 
-// --- Point Controller ---
+// --- Point Controller start---
 
 void PointController::set_vgoal(double x, double y, double z){
     this->goal_x = x;
@@ -87,3 +87,5 @@ bool PointController::check_get_goal(geometry_msgs::Twist::ConstPtr msg){
         return false;
     return true;
 }
+
+// --- PointController end ---

@@ -1,0 +1,13 @@
+<launch>
+    <!-- tf node -->
+    <node pkg="mecanumLoc" type="location_tf.py" name="location_viewer" output="screen"/>
+
+    <!-- location node -->
+    <node pkg="mecanumLoc" type="mecanumEnc" name="localization" output="screen"/>
+
+    <!-- Navigation node -->
+    <node pkg="nav_mec" type="navMec_node" name="navMec"/>
+
+    <!-- Encoder simulation -->
+    <node pkg="mecanumLoc" type="test.py" name="encoder_node"/>
+</launch>

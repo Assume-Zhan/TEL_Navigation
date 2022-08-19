@@ -3,7 +3,6 @@
 
 #include "geometry_msgs/Twist.h"
 
-
 // --- class PointController ---
 class PointController{
 public:
