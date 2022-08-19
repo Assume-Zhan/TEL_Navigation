@@ -1,10 +1,11 @@
 #ifndef NAV_MEC_NODE_H_
 #define NAV_MEC_NODE_H_
 
-#define DEBUGGER_MODE
+// #define DEBUGGER_MODE
 
 #include <ros/ros.h>
 #include <nav_mec/navMec_srv.h>
+#include <nav_mec/navMec_fsrv.h>
 #include "geometry_msgs/Twist.h"
 #include "PointController.h"
 
@@ -20,7 +21,8 @@ void subCB(const geometry_msgs::Twist::ConstPtr&);
 
 // --- vars ---
 bool trigger = false;
-PointController pointControl(2, 2, 4);
+bool firstTrigger = true;
+PointController pointControl(0, 0, 0);
 
 
 
@@ -39,8 +41,8 @@ public:
 };
 
 int count = 0;
-int maxCount = 3;
-Vector3 vectors[3];
+int maxCount = 13;
+Vector3 vectors[13];
 void constructVectors();
 // --- Need to be removed --- E
 

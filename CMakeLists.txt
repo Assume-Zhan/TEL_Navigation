@@ -58,7 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(
   DIRECTORY srv
-  FILES navMec_srv.srv
+  FILES navMec_srv.srv navMec_fsrv.srv
 )
 
 ## Generate actions in the 'action' folder

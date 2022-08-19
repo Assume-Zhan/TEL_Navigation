@@ -18,7 +18,7 @@ int main(int argc, char** argv){
     // Init our server/client, pub/sub
 #ifndef DEBUGGER_MODE
     navMec_ser = navMec_nh.advertiseService("navMec_trigger", serverCB);
-    navMec_cli = navMec_nh.serviceClient<nav_mec::navMec_srv>("navMec_resp");
+    navMec_cli = navMec_nh.serviceClient<nav_mec::navMec_fsrv>("navMec_resp");
 #endif /* DEBUGGER_MODE */
     navMec_pub = navMec_nh.advertise<geometry_msgs::Twist>("/push_vel", 1);
     navMec_sub = navMec_nh.subscribe("/location_cha", 1, subCB);
