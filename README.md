@@ -1,4 +1,5 @@
 # NAV_MEC
+> Navigation node
 ---
 ### File system
 - Node Handle : navMec_node.cpp
@@ -7,7 +8,7 @@
     - include : navMec_ros.h
 - ROS system
     - Refer : <font color="fx56">"navMec_ros.h"</font>
-    - Service : srv/navMec_srv.srv
+    - Service : srv/navMec_srv.srv, navMec_fsrv.srv
     - Server : "navMec_ser" 
         - Callback function : "serverCB"
     - Client : "navMec_cli"
