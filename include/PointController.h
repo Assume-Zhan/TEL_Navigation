@@ -2,6 +2,7 @@
 #define POINTCONTROLLER_H_
 
 #include "geometry_msgs/Twist.h"
+#define PI 3.14159265358979323846
 
 // --- class PointController ---
 class PointController{
@@ -17,6 +18,10 @@ public:
 
     // Get cmd_vel
     geometry_msgs::Twist get_vgoal(geometry_msgs::Twist::ConstPtr, double);
+
+    // Max Distance for decreasing V 
+    double dis_decrease(double);
+    double theta_decrease(double);
 
     // Reset prev_v
     void Reset_prev_v();
@@ -39,20 +44,19 @@ private:
 
     const double ax = 0.1;
     const double ay = 0.1;
-    const double az = 0.4;
+    const double az = 0.2;
 
-    const double maxSpeed = 0.65;
-    const double maxOmega = 1.2;
+    const double maxSpeed = 0.45;
+    const double maxOmega = 1.;
 
     // Use V control
     double CarV = 0;
-    double prevCarV = 0;
-    const double CarAccel = 0.2;
+    const double CarAccel = 0.1;
     const double V_max = 0.4;
 
     // DEVIATION
-    const double xyDeviation = 0.03;
-    const double tDeviation = 0.5;
+    const double xyDeviation = 0.01;
+    const double tDeviation = 0.1;
 };
 
 #endif /* POINTCONTROLLER_H_ */

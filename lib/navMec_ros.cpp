@@ -59,6 +59,14 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         cmd_vel = pointControl.get_vgoal(msg, time_diff);
         navMec_pub.publish(cmd_vel);
     }
+#ifdef DEBUGGER_MODE
+    else if(count < maxCount){
+        std::cout << "Got goal : " << count << '\n';
+        pointControl.set_vgoal(vectors[count].x, vectors[count].y, vectors[count].theta);
+        count++;
+        navMec_pub.publish(cmd_vel);
+    }
+#endif /* DEBUGGER_MODE */
     else navMec_pub.publish(cmd_vel);
 
 
@@ -91,7 +99,7 @@ void constructVectors(){
     vectors[2].setxyz(0.6, 0.8, 0.98);
     vectors[3].setxyz(0.6, 1.6, 2.01);
     vectors[4].setxyz(0.2, 1.6, 3.14);
-    vectors[5].setxyz(0.4, 2.7, 1.57);
+    vectors[5].setxyz(0.4, 2.7, -1.57);
     vectors[6].setxyz(0.4, 3.1, 0);
     vectors[7].setxyz(0.7, 3.7, 0);
     vectors[8].setxyz(0.7, 4.6, 0);
@@ -100,3 +108,17 @@ void constructVectors(){
     vectors[11].setxyz(0.65, 5.95, 0);
     vectors[12].setxyz(0.65, 6.75, 0);
 }// --- Need to be removed --- E
+
+// vectors[0].setxyz(0.5, 0.2, 0);
+// vectors[1].setxyz(0.2, 0.8, 0);
+// vectors[2].setxyz(0.6, 0.8, 0.98);
+// vectors[3].setxyz(0.6, 1.6, 2.01);
+// vectors[4].setxyz(0.2, 1.6, 3.14);
+// vectors[5].setxyz(0.4, 2.7, 1.57);
+// vectors[6].setxyz(0.4, 3.1, 0);
+// vectors[7].setxyz(0.7, 3.7, 0);
+// vectors[8].setxyz(0.7, 4.6, 0);
+// vectors[9].setxyz(0.325, 4.9, 0);
+// vectors[10].setxyz(0.325, 5.75, 0);
+// vectors[11].setxyz(0.65, 5.95, 0);
+// vectors[12].setxyz(0.65, 6.75, 0);
