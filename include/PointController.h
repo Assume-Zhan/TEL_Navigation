@@ -4,6 +4,14 @@
 #include "geometry_msgs/Twist.h"
 #define PI 3.14159265358979323846
 
+namespace POINT_CONTROLLER{
+    typedef enum{
+        SPEEDUP = 1,
+        MAXSPEED = 0,
+        SLOWDOWN = -1
+    } STATE;
+}
+
 // --- class PointController ---
 class PointController{
 public:
@@ -19,40 +27,56 @@ public:
     // Get cmd_vel
     geometry_msgs::Twist get_vgoal(geometry_msgs::Twist::ConstPtr, double);
 
-    // Max Distance for decreasing V 
-    double dis_decrease(double);
-    double theta_decrease(double);
-
-    // Reset prev_v
-    void Reset_prev_v();
-
-    // Get distance from now position to goal position
-    double get_distance(geometry_msgs::Twist::ConstPtr);
-    double get_orientationErr(geometry_msgs::Twist::ConstPtr);
-
     // Check
     bool check_get_goal(geometry_msgs::Twist::ConstPtr);
+    bool getGoal = false;
+
+    // Renew
+    void RenewInfo();
 
 private:
+    // Get distance from now position to goal position
+    double get_linearErr(geometry_msgs::Twist::ConstPtr);
+    double get_orientationErr(geometry_msgs::Twist::ConstPtr);
+    bool GotLinearErr = false;
+    bool GotAngularErr = false;
+
+    // Goal information
     double goal_x = 0;
     double goal_y = 0;
     double goal_theta = 0;
 
-    double prev_vx = 0;
-    double prev_vy = 0;
-    double prev_omega = 0;
+    // Error odemetry frame
+    double CarError_linearX = 0;
+    double CarError_linearY = 0;
+    double CarError_linear = 0;
+    double CarError_angular = 0;
 
-    const double ax = 0.1;
-    const double ay = 0.1;
-    const double az = 0.2;
+    // Omega direction
+    int CarDir_angular = 1;
+    void get_orientationDir(double);
 
-    const double maxSpeed = 0.45;
-    const double maxOmega = 1.;
+    // Velocity info and theta info
+    double CarVel_linear = 0;
+    double CarVel_angular = 0;
+    double sinpha = 0;
+    double cospha = 0;
+
+    // About linear vector information
+    double Gsin = 0;
+    double Gcos = 0;
+    void Gpha();
+
+    // P controller
+    const double P = 0.8;
+
+    // Velocity restriction
+    const double maxSpeed = 0.5;
+    const double maxOmega = 1.2;
 
     // Use V control
-    double CarV = 0;
-    const double CarAccel = 0.1;
-    const double V_max = 0.4;
+    const double CarAccel = 0.1; /* Linear acceloration */
+    const double CarAlpha = 0.2; /* Angular acceloration */
 
     // DEVIATION
     const double xyDeviation = 0.01;

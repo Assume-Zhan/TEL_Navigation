@@ -10,7 +10,7 @@
     <node pkg="mecanumLoc" type="mecanumEnc" name="localization" output="screen"/>
 
     <!-- Navigation node -->
-    <node pkg="nav_mec" type="navMec_node" name="navMec"/>
+    <node pkg="nav_mec" type="navMec_node" name="navMec" output="screen"/>
 
     <!-- Encoder simulation -->
     <node pkg="mecanumLoc" type="test.py" name="encoder_node"/>

@@ -20,113 +20,105 @@ void PointController::set_vgoal(double x, double y, double z){
 geometry_msgs::Twist PointController::get_vgoal(geometry_msgs::Twist::ConstPtr msg, double time_diff){
     geometry_msgs::Twist cmd_vel;
 
-    // Transform goal distance from map frame to odemetry frame
-    double pha = msg->angular.z;
-    double sinpha = std::sin(pha);
-    double cospha = std::cos(pha);
+    /* Linear velocity calculation */
+    // Get error information
+    if(!this->GotLinearErr)
+        this->get_linearErr(msg);
 
-    double delta_x = (this->goal_x - msg->linear.x);
-    double delta_y = (this->goal_y - msg->linear.y);
+    // Get goal-theta information
+    this->Gpha();
 
-    double final_x = cospha * delta_x - sinpha * delta_y;
-    double final_y = sinpha * delta_x + cospha * delta_y;
-
-    // Get previous velocity by location_node
-    this->prev_vx = msg->angular.x;
-    this->prev_vy = msg->angular.y;
-    double distance = final_x * final_x + final_y * final_y;
-    distance = std::sqrt(distance);
-    double nowV = this->prev_vx * this->prev_vx + this->prev_vy * this->prev_vy;
-    nowV = std::sqrt(nowV);
-
-
-    // x : y
-    double x_all = 0;
-    double y_all = 0;
-    if(final_x != 0 || final_y != 0)
-        x_all = final_x / std::sqrt(abs(final_x) * abs(final_x) + abs(final_y) * abs(final_y)),
-        y_all = final_y / std::sqrt(abs(final_x) * abs(final_x) + abs(final_y) * abs(final_y));
-
-    // Calculate max speed delta
-    double V = 0;
-    if(distance < this->dis_decrease(nowV))
-        V = std::min(nowV - this->CarAccel * time_diff, this->V_max);
-    else
-        V = std::min(nowV + this->CarAccel * time_diff, this->V_max);
-
-    cmd_vel.linear.x = V * x_all;
-    cmd_vel.linear.y = V * y_all;
-
-
-    // Speed for orientation
-    double thetaDis = (this->goal_theta - msg->angular.z);
-    this->prev_omega = msg->linear.z;
-    if(thetaDis > PI)
-        thetaDis = thetaDis - 2 * PI;
-    else if(thetaDis < -PI)
-        thetaDis = thetaDis + 2 * PI;
-
-    double V_omega = 0;
-
-    if(abs(thetaDis) < this->tDeviation)
-        V_omega = 0;
-    else if(abs(thetaDis) < this->theta_decrease(this->prev_omega)){
-        // Start to decrease our velocity
-        if(thetaDis > 0)
-            V_omega = std::max(-this->maxOmega, std::min(this->maxOmega, this->prev_omega - time_diff * this->az));
-        else
-            V_omega = std::max(-this->maxOmega, std::min(this->maxOmega, this->prev_omega + time_diff * this->az));
-
+    // Velocity control (Calculate proper velocity for mecanum)
+    // Calculate linear velocity
+    double prev_vel = sqrt(pow(msg->angular.x, 2) + pow(msg->angular.y, 2));
+    this->CarVel_linear = prev_vel + (this->CarAccel * time_diff);
+    if(this->CarError_linear < this->CarAccel * 1.5){
+        this->CarVel_linear = this->CarError_linear * this->P;
     }
-    else{
-        if(thetaDis > 0)
-            V_omega = std::max(-this->maxOmega, std::min(this->maxOmega, this->prev_omega + time_diff * this->az));
-        else
-            V_omega = std::max(-this->maxOmega, std::min(this->maxOmega, this->prev_omega - time_diff * this->az));
-    }
+    if(this->CarVel_linear > this->maxSpeed)
+        this->CarVel_linear = this->maxSpeed;
 
-    cmd_vel.angular.z = V_omega;
+    // Calculate Vx and Vy
+    cmd_vel.linear.x = this->CarVel_linear * this->Gcos;
+    cmd_vel.linear.y = this->CarVel_linear * this->Gsin;
+
+
+    /* Angular velocity calculation ( theta domain : [-pi, pi] ) */
+    // Get Theta Error
+    if(!this->GotAngularErr)
+        this->get_orientationErr(msg);
+    this->CarVel_angular = abs(msg->linear.z) + (this->CarAlpha * time_diff);
+    if(this->CarError_angular < this->CarAlpha * 2.5){
+        this->CarVel_angular = this->CarError_angular * this->P;
+    }
+    if(this->CarVel_angular > this->maxOmega)
+        this->CarVel_angular = this->maxOmega;
+
+    cmd_vel.angular.z = this->CarDir_angular * this->CarVel_angular;
 
     return cmd_vel;
 }
 
-double PointController::dis_decrease(double nowSpeed){
-    // V = V0 + at
-    // 0 = nowSpeed + this->V_a * t
-    double t = abs(nowSpeed / this->CarAccel);
-    return (nowSpeed * t) / 2;
+bool PointController::check_get_goal(geometry_msgs::Twist::ConstPtr msg){
+    if(this->get_linearErr(msg) > this->xyDeviation)
+        return this->getGoal = false;
+    if(abs(this->get_orientationErr(msg)) > this->tDeviation)
+        return this->getGoal = false;
+    return this->getGoal = true;
 }
 
-double PointController::theta_decrease(double nowOmega){
-    double t = abs(nowOmega / this->az);
-    return abs((nowOmega * t) / 2);
-}
+double PointController::get_linearErr(geometry_msgs::Twist::ConstPtr msg){
+    /* x-y distance error
+    Transfrom error from map frame to odemetry frame */
 
+    // Transform goal distance from map frame to odemetry frame
+    // Calculate linear error
+    this->sinpha = std::sin(msg->angular.z);
+    this->cospha = std::cos(msg->angular.z);
+    this->CarError_linearX = this->cospha * (this->goal_x - msg->linear.x) - this->sinpha * (this->goal_y - msg->linear.y);
+    this->CarError_linearY = this->sinpha * (this->goal_x - msg->linear.x) + this->cospha * (this->goal_y - msg->linear.y);
 
-double PointController::get_distance(geometry_msgs::Twist::ConstPtr msg){
-    double x_error = this->goal_x - msg->linear.x;
-    double y_error = this->goal_y - msg->linear.y;
+    this->GotLinearErr = true;
 
-    return sqrt(x_error * x_error + y_error * y_error);
+    return this->CarError_linear = sqrt(pow(this->CarError_linearX, 2) + pow(this->CarError_linearY, 2));
 }
 
 double PointController::get_orientationErr(geometry_msgs::Twist::ConstPtr msg){
     double theta_error = this->goal_theta - msg->angular.z;
 
-    return abs(theta_error);
+    // Calculate proper direction
+    this->get_orientationDir(theta_error);
+
+    this->GotAngularErr = true;
+
+    return this->CarError_angular = abs(theta_error);
 }
 
-void PointController::Reset_prev_v(){
-    this->prev_vx = this->prev_vy = this->prev_omega = 0;
-    return;
+void PointController::get_orientationDir(double thetaErr){
+    if(thetaErr == 0)
+        return;
+
+    double absThetaErr = abs(thetaErr);
+    if(absThetaErr < PI)
+        this->CarDir_angular = (thetaErr / absThetaErr);
+    else
+        this->CarDir_angular = -(thetaErr / absThetaErr);
 }
 
-bool PointController::check_get_goal(geometry_msgs::Twist::ConstPtr msg){
-    if(this->get_distance(msg) > this->xyDeviation)
-        return false;
-    if(this->get_orientationErr(msg) > this->tDeviation)
-        return false;
-    return true;
+void PointController::Gpha(){
+    /* Calculate theta about goal vector
+    Need after calculate linear error */
+    if(this->CarError_linear == 0){
+        this->Gcos = this->Gsin = 0;
+        return;
+    }
+
+    this->Gcos = this->CarError_linearX / this->CarError_linear;
+    this->Gsin = this->CarError_linearY / this->CarError_linear;
+}
+
+void PointController::RenewInfo(){
+    this->GotLinearErr = this->GotAngularErr = false;
 }
 
 // --- PointController end ---

@@ -41,6 +41,9 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
     }
 #endif /* DEBUGGER_MODE */
 
+    // Renew Information
+    pointControl.RenewInfo();
+
     // If trigger --> start to nagigation
     // Problem : How to get path ?
     static double time_before = 0;
@@ -51,11 +54,16 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         return;
     }
 
+    // Get time different (Here just forr calculate proper delta velocity)
     time_after = ros::Time::now().toSec();
     double time_diff = time_after - time_before;
     time_before = ros::Time::now().toSec();
 
-    if(!pointControl.check_get_goal(msg)){
+    // Check get goal and renew Error information
+    pointControl.check_get_goal(msg);
+
+    // For calculate proper goal or move to next goal
+    if(!pointControl.getGoal){
         cmd_vel = pointControl.get_vgoal(msg, time_diff);
         navMec_pub.publish(cmd_vel);
     }
@@ -72,7 +80,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
 #ifndef DEBUGGER_MODE
     // If we got the goal --> send success info
-    if(/* error < DEVIATION */ pointControl.check_get_goal(msg)){
+    if(/* if we get the goal */ pointControl.getGoal){
         trigger = false;
         nav_mec::navMec_fsrv res_srv;
         res_srv.request.finished = true;
@@ -80,7 +88,6 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         // Ignore the response
 
         time_before = time_after = 0;
-        pointControl.Reset_prev_v();
 
         // Set next goal
         if(count < maxCount){
@@ -107,7 +114,8 @@ void constructVectors(){
     vectors[10].setxyz(0.325, 5.75, 0);
     vectors[11].setxyz(0.65, 5.95, 0);
     vectors[12].setxyz(0.65, 6.75, 0);
-}// --- Need to be removed --- E
+}
+// --- Need to be removed --- E
 
 // vectors[0].setxyz(0.5, 0.2, 0);
 // vectors[1].setxyz(0.2, 0.8, 0);
