@@ -2,6 +2,7 @@
 #define POINTCONTROLLER_H_
 
 #include "geometry_msgs/Twist.h"
+#include <string>
 #define PI 3.14159265358979323846
 
 namespace POINT_CONTROLLER{
@@ -26,6 +27,11 @@ public:
 
     // Get cmd_vel
     geometry_msgs::Twist get_vgoal(geometry_msgs::Twist::ConstPtr, double);
+
+    // Calculate break point
+    // true : linear
+    // false : angular
+    double breakPoint(bool);
 
     // Check
     bool check_get_goal(geometry_msgs::Twist::ConstPtr);

@@ -32,7 +32,7 @@ geometry_msgs::Twist PointController::get_vgoal(geometry_msgs::Twist::ConstPtr m
     // Calculate linear velocity
     double prev_vel = sqrt(pow(msg->angular.x, 2) + pow(msg->angular.y, 2));
     this->CarVel_linear = prev_vel + (this->CarAccel * time_diff);
-    if(this->CarError_linear < this->CarAccel * 1.5){
+    if(this->CarError_linear < this->breakPoint(true)){
         this->CarVel_linear = this->CarError_linear * this->P;
     }
     if(this->CarVel_linear > this->maxSpeed)
@@ -48,7 +48,7 @@ geometry_msgs::Twist PointController::get_vgoal(geometry_msgs::Twist::ConstPtr m
     if(!this->GotAngularErr)
         this->get_orientationErr(msg);
     this->CarVel_angular = abs(msg->linear.z) + (this->CarAlpha * time_diff);
-    if(this->CarError_angular < this->CarAlpha * 2.5){
+    if(this->CarError_angular < this->breakPoint(false)){
         this->CarVel_angular = this->CarError_angular * this->P;
     }
     if(this->CarVel_angular > this->maxOmega)
@@ -57,6 +57,19 @@ geometry_msgs::Twist PointController::get_vgoal(geometry_msgs::Twist::ConstPtr m
     cmd_vel.angular.z = this->CarDir_angular * this->CarVel_angular;
 
     return cmd_vel;
+}
+
+double PointController::breakPoint(bool type){
+    /* type true : linear
+       type false : angular */
+    if(type){
+        /* Linear mode */
+        return ((pow(this->CarVel_linear, 2)) / (2 * this->CarAccel));
+    }
+    else{
+        /* Angular mode */
+        return (pow(this->CarVel_angular, 2) / (2 * this->CarAlpha));
+    }
 }
 
 bool PointController::check_get_goal(geometry_msgs::Twist::ConstPtr msg){

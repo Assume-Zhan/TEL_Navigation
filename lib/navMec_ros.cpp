@@ -106,7 +106,7 @@ void constructVectors(){
     vectors[2].setxyz(0.6, 0.8, 0.98);
     vectors[3].setxyz(0.6, 1.6, 2.01);
     vectors[4].setxyz(0.2, 1.6, 3.14);
-    vectors[5].setxyz(0.4, 2.7, -1.57);
+    vectors[5].setxyz(0.4, 2.7, 1.57);
     vectors[6].setxyz(0.4, 3.1, 0);
     vectors[7].setxyz(0.7, 3.7, 0);
     vectors[8].setxyz(0.7, 4.6, 0);
