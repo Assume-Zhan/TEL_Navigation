@@ -5,14 +5,6 @@
 #include <string>
 #define PI 3.14159265358979323846
 
-namespace POINT_CONTROLLER{
-    typedef enum{
-        SPEEDUP = 1,
-        MAXSPEED = 0,
-        SLOWDOWN = -1
-    } STATE;
-}
-
 // --- class PointController ---
 class PointController{
 public:
