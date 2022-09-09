@@ -5,7 +5,30 @@
 #include <string>
 #define PI 3.14159265358979323846
 
-// --- class PointController ---
+/**
+ * @brief
+ * Utility -> Vector3
+ * For store location, velocity information
+ */
+typedef struct Vector3{
+    double x = 0;
+    double y = 0;
+    double theta = 0;
+
+    Vector3(){}
+    Vector3(double x, double y, double z):
+        x(x), y(y), theta(z){
+    }
+
+} Vector3;
+
+
+/**
+ * @brief
+ * PointController
+ * Calculating a proper velocity vector for
+ * known location and velocity
+ */
 class PointController{
 public:
     // Constructors
@@ -18,37 +41,50 @@ public:
     void set_vgoal(double, double, double);
 
     // Get cmd_vel
-    geometry_msgs::Twist get_vgoal(geometry_msgs::Twist::ConstPtr, double);
-
-    // Calculate break point
-    // true : linear
-    // false : angular
-    double breakPoint(bool);
+    geometry_msgs::Twist get_vgoal(Vector3, Vector3, double);
 
     // Check
-    bool check_get_goal(geometry_msgs::Twist::ConstPtr);
+    bool check_get_goal(Vector3);
     bool getGoal = false;
 
     // Renew
     void RenewInfo();
 
 private:
+    // State Definition
+    typedef enum{
+        ACCEL = 1,
+        STOP = 0,
+        SLOWDOWN = -1
+    } STATE;
+
     // Get distance from now position to goal position
-    double get_linearErr(geometry_msgs::Twist::ConstPtr);
-    double get_orientationErr(geometry_msgs::Twist::ConstPtr);
+    double get_linearErr(Vector3);
+    double get_orientationErr(Vector3);
     bool GotLinearErr = false;
     bool GotAngularErr = false;
+
+    // State information
+    STATE CarState_linear = STOP;
+    STATE CarState_angular = STOP;
+    void get_CarState();
 
     // Goal information
     double goal_x = 0;
     double goal_y = 0;
     double goal_theta = 0;
+    bool changeGoal = false;
 
     // Error odemetry frame
     double CarError_linearX = 0;
     double CarError_linearY = 0;
     double CarError_linear = 0;
     double CarError_angular = 0;
+
+    // Calculate break point
+    // true : linear
+    // false : angular
+    double breakPoint(bool);
 
     // Omega direction
     int CarDir_angular = 1;
