@@ -86,8 +86,8 @@ double PointController::get_linearErr(geometry_msgs::Twist::ConstPtr msg){
 
     // Transform goal distance from map frame to odemetry frame
     // Calculate linear error
-    this->sinpha = std::sin(msg->angular.z);
-    this->cospha = std::cos(msg->angular.z);
+    this->sinpha = std::sin(-msg->angular.z);
+    this->cospha = std::cos(-msg->angular.z);
     this->CarError_linearX = this->cospha * (this->goal_x - msg->linear.x) - this->sinpha * (this->goal_y - msg->linear.y);
     this->CarError_linearY = this->sinpha * (this->goal_x - msg->linear.x) + this->cospha * (this->goal_y - msg->linear.y);
 

@@ -69,12 +69,12 @@ private:
     const double P = 0.8;
 
     // Velocity restriction
-    const double maxSpeed = 0.5;
-    const double maxOmega = 1.2;
+    const double maxSpeed = 0.35;
+    const double maxOmega = 0.9;
 
     // Use V control
-    const double CarAccel = 0.1; /* Linear acceloration */
-    const double CarAlpha = 0.2; /* Angular acceloration */
+    const double CarAccel = 0.18; /* Linear acceloration */
+    const double CarAlpha = 0.4; /* Angular acceloration */
 
     // DEVIATION
     const double xyDeviation = 0.01;

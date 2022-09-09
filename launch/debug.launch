@@ -1,0 +1,9 @@
+<launch>
+
+    <!-- location node -->
+    <node pkg="mecanumLoc" type="mecanumEnc" name="localization" output="screen"/>
+
+    <!-- Navigation node -->
+    <node pkg="nav_mec" type="navMec_node" name="navMec" output="screen"/>
+
+</launch>
