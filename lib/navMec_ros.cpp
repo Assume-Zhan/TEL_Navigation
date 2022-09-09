@@ -44,8 +44,11 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
     // Renew Information
     pointControl.RenewInfo();
 
-    // If trigger --> start to nagigation
-    // Problem : How to get path ?
+    /**
+     * @brief
+     * If trigger --> start to nagigation
+     * Problem : How to get path ?
+     */
     static double time_before = 0;
     static double time_after = 0;
     if(!time_before){
@@ -54,17 +57,21 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         return;
     }
 
-    // Get time different (Here just forr calculate proper delta velocity)
+    /* Get time different (Here just for calculate proper delta velocity) */
     time_after = ros::Time::now().toSec();
     double time_diff = time_after - time_before;
     time_before = ros::Time::now().toSec();
 
-    // Check get goal and renew Error information
-    pointControl.check_get_goal(msg);
+    /* Change geometry msgs to Vector3 */
+    Vector3 location(msg->linear.x, msg->linear.y, msg->angular.z);
+    Vector3 velocity(msg->angular.x, msg->angular.y, msg->linear.z);
 
-    // For calculate proper goal or move to next goal
+    /* Check get goal and renew Error information */
+    pointControl.check_get_goal(location);
+
+    /* For calculate proper goal or move to next goal */
     if(!pointControl.getGoal){
-        cmd_vel = pointControl.get_vgoal(msg, time_diff);
+        cmd_vel = pointControl.get_vgoal(location, velocity, time_diff);
         navMec_pub.publish(cmd_vel);
     }
 #ifdef DEBUGGER_MODE
@@ -79,7 +86,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
 
 #ifndef DEBUGGER_MODE
-    // If we got the goal --> send success info
+    /* If we got the goal --> send success info */
     if(/* if we get the goal */ pointControl.getGoal){
         trigger = false;
         nav_mec::navMec_fsrv res_srv;

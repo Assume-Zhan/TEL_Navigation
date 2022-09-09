@@ -5,7 +5,30 @@
 #include <string>
 #define PI 3.14159265358979323846
 
-// --- class PointController ---
+/**
+ * @brief
+ * Utility -> Vector3
+ * For store location, velocity information
+ */
+typedef struct Vector3{
+    double x = 0;
+    double y = 0;
+    double theta = 0;
+
+    Vector3(){}
+    Vector3(double x, double y, double z):
+        x(x), y(y), theta(z){
+    }
+
+} Vector3;
+
+
+/**
+ * @brief
+ * PointController
+ * Calculating a proper velocity vector for
+ * known location and velocity
+ */
 class PointController{
 public:
     // Constructors
@@ -18,10 +41,10 @@ public:
     void set_vgoal(double, double, double);
 
     // Get cmd_vel
-    geometry_msgs::Twist get_vgoal(geometry_msgs::Twist::ConstPtr, double);
+    geometry_msgs::Twist get_vgoal(Vector3, Vector3, double);
 
     // Check
-    bool check_get_goal(geometry_msgs::Twist::ConstPtr);
+    bool check_get_goal(Vector3);
     bool getGoal = false;
 
     // Renew
@@ -36,8 +59,8 @@ private:
     } STATE;
 
     // Get distance from now position to goal position
-    double get_linearErr(geometry_msgs::Twist::ConstPtr);
-    double get_orientationErr(geometry_msgs::Twist::ConstPtr);
+    double get_linearErr(Vector3);
+    double get_orientationErr(Vector3);
     bool GotLinearErr = false;
     bool GotAngularErr = false;
 
@@ -87,7 +110,7 @@ private:
 
     // Use V control
     const double CarAccel = 0.1; /* Linear acceloration */
-    const double CarAlpha = 0.2; /* Angular acceloration */
+    const double CarAlpha = 0.3; /* Angular acceloration */
 
     // DEVIATION
     const double xyDeviation = 0.01;

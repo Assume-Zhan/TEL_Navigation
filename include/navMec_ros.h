@@ -27,9 +27,9 @@ PointController pointControl(0, 0, 0);
 
 
 // --- Need to be removed --- S
-class Vector3{
+class vector3{
 public:
-    Vector3(){}
+    vector3(){}
 
     void setxyz(double x, double y, double z){
         this->x = x;
@@ -42,7 +42,7 @@ public:
 
 int count = 0;
 int maxCount = 13;
-Vector3 vectors[13];
+vector3 vectors[13];
 void constructVectors();
 // --- Need to be removed --- E
 
