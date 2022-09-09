@@ -7,7 +7,7 @@
     <node pkg="mecanumLoc" type="location_tf.py" name="location_viewer" output="screen"/>
 
     <!-- location node -->
-    <node pkg="mecanumLoc" type="mecanumEnc" name="localization" output="screen"/>
+    <node pkg="mecanumLoc" type="mecanumEnc" name="localization"/>
 
     <!-- Navigation node -->
     <node pkg="nav_mec" type="navMec_node" name="navMec" output="screen"/>

@@ -20,11 +20,6 @@ public:
     // Get cmd_vel
     geometry_msgs::Twist get_vgoal(geometry_msgs::Twist::ConstPtr, double);
 
-    // Calculate break point
-    // true : linear
-    // false : angular
-    double breakPoint(bool);
-
     // Check
     bool check_get_goal(geometry_msgs::Twist::ConstPtr);
     bool getGoal = false;
@@ -33,22 +28,40 @@ public:
     void RenewInfo();
 
 private:
+    // State Definition
+    typedef enum{
+        ACCEL = 1,
+        STOP = 0,
+        SLOWDOWN = -1
+    } STATE;
+
     // Get distance from now position to goal position
     double get_linearErr(geometry_msgs::Twist::ConstPtr);
     double get_orientationErr(geometry_msgs::Twist::ConstPtr);
     bool GotLinearErr = false;
     bool GotAngularErr = false;
 
+    // State information
+    STATE CarState_linear = STOP;
+    STATE CarState_angular = STOP;
+    void get_CarState();
+
     // Goal information
     double goal_x = 0;
     double goal_y = 0;
     double goal_theta = 0;
+    bool changeGoal = false;
 
     // Error odemetry frame
     double CarError_linearX = 0;
     double CarError_linearY = 0;
     double CarError_linear = 0;
     double CarError_angular = 0;
+
+    // Calculate break point
+    // true : linear
+    // false : angular
+    double breakPoint(bool);
 
     // Omega direction
     int CarDir_angular = 1;
