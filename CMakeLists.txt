@@ -131,6 +131,9 @@ add_library(
   PointController lib/PointController.cpp
 )
 
+add_library(
+  PurePursuit lib/PurePursuit.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -159,7 +162,7 @@ add_library(
 
 add_executable(navMec_node src/navMec_node.cpp)
 add_dependencies(navMec_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(navMec_node ${catkin_LIBRARIES} navMec_ros PointController)
+target_link_libraries(navMec_node ${catkin_LIBRARIES} navMec_ros PointController PurePursuit)
 
 #############
 ## Install ##

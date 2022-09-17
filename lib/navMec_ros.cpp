@@ -105,6 +105,30 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 #endif /* DEBUGGER_MODE */
 }
 
+void subCBPP(const geometry_msgs::Twist::ConstPtr& msg){
+    geometry_msgs::Twist cmd_vel;
+    static double time_before = 0;
+    static double time_after = 0;
+    if(!time_before){
+        time_before = ros::Time::now().toSec();
+        navMec_pub.publish(cmd_vel);
+        return;
+    }
+
+    /* Get time different (Here just for calculate proper delta velocity) */
+    time_after = ros::Time::now().toSec();
+    double time_diff = time_after - time_before;
+    time_before = ros::Time::now().toSec();
+
+    /* Change geometry msgs to Vector3 */
+    Vector3 location(msg->linear.x, msg->linear.y, msg->angular.z);
+    Vector3 velocity(msg->angular.x, msg->angular.y, msg->linear.z);
+
+    cmd_vel = purepursuit.get_vgoal(location, velocity, time_diff);
+
+    navMec_pub.publish(cmd_vel);
+}
+
 
 // --- Need to be removed --- S
 void constructVectors(){
