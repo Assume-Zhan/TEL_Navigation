@@ -8,6 +8,7 @@
 #include <nav_mec/navMec_fsrv.h>
 #include "geometry_msgs/Twist.h"
 #include "PointController.h"
+#include "PurePursuit.h"
 
 // Define ""server, client, publisher, subscriber""
 ros::ServiceServer navMec_ser;
@@ -18,11 +19,13 @@ ros::Subscriber navMec_sub;
 // Callback function for subscriber and server
 bool serverCB(nav_mec::navMec_srv::Request&, nav_mec::navMec_srv::Response&);
 void subCB(const geometry_msgs::Twist::ConstPtr&);
+void subCBPP(const geometry_msgs::Twist::ConstPtr&);
 
 // --- vars ---
 bool trigger = false;
 bool firstTrigger = true;
 PointController pointControl(0, 0, 0);
+PurePursuit purepursuit;
 
 
 
