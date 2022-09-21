@@ -102,7 +102,7 @@ private:
     void Gpha();
 
     // P controller
-    const double P = 0.8;
+    const double P = 0.65;
 
     // Velocity restriction
     const double maxSpeed = 0.35;
@@ -110,7 +110,7 @@ private:
 
     // Use V control
     const double CarAccel = 0.18; /* Linear acceloration */
-    const double CarAlpha = 0.4; /* Angular acceloration */
+    const double CarAlpha = 0.28; /* Angular acceloration */
 
     // DEVIATION
     const double xyDeviation = 0.01;

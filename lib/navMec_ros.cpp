@@ -108,7 +108,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
 // --- Need to be removed --- S
 void constructVectors(){
-    vectors[0].setxyz(1., 0., 0.0);
+    vectors[0].setxyz(0, 0., -PI * 3 / 4 + 0.2);
     vectors[1].setxyz(0.0, 0., 1.57);
     vectors[2].setxyz(0.6, 0.8, 0.98);
     vectors[3].setxyz(0.6, 1.6, 2.01);
