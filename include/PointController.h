@@ -2,6 +2,7 @@
 #define POINTCONTROLLER_H_
 
 #include "geometry_msgs/Twist.h"
+#include "ros/ros.h"
 #include <string>
 #define PI 3.14159265358979323846
 
@@ -20,8 +21,14 @@ typedef struct Vector3{
         x(x), y(y), theta(z){
     }
 
+    Vector3 operator - (Vector3 a) const{
+        return Vector3(this->x - a.x, this->y - a.y, this->theta - a.theta);
+    }
+
 } Vector3;
 
+// Easy calculation for normalize the error vector
+double abs(Vector3 v){ return sqrt(v.x * v.x + v.y * v.y); }
 
 /**
  * @brief
@@ -33,88 +40,87 @@ class PointController{
 public:
     // Constructors
     PointController(){}
-    PointController(double x, double y, double z):
-        goal_x(x), goal_y(y), goal_theta(z){
+    PointController(Vector3 goal):
+        GoalPosition(goal){
     }
 
     // Get goal
-    void set_vgoal(double, double, double);
+    void set_vgoal(Vector3);
 
-    // Get cmd_vel
-    geometry_msgs::Twist get_vgoal(Vector3, Vector3, double);
+    // Check get the goal
+    void check_get_goal(Vector3);
+    bool getGoal;
 
-    // Check
-    bool check_get_goal(Vector3);
-    bool getGoal = false;
-
-    // Renew
-    void RenewInfo();
+    /**
+     * @brief Get proper velocity vector by given position and goal,
+     * @n Datapath part
+     *
+     * @param location_vector
+     * @param velocity_vector
+     * @param time_diff
+     * @return geometry_msgs::Twist
+     */
+    geometry_msgs::Twist get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff);
 
 private:
-    // State Definition
+    /**
+     * @brief
+     * Motion state Definition.
+     * State information.
+     */
     typedef enum{
-        ACCEL = 1,
         STOP = 0,
-        SLOWDOWN = -1
+        ACCEL = 1,
+        SLOWDOWN = 2,
+        PCONTROL = 3
     } STATE;
-
-    // Get distance from now position to goal position
-    double get_linearErr(Vector3);
-    double get_orientationErr(Vector3);
-    bool GotLinearErr = false;
-    bool GotAngularErr = false;
-
-    // State information
     STATE CarState_linear = STOP;
     STATE CarState_angular = STOP;
-    void get_CarState();
 
-    // Goal information
-    double goal_x = 0;
-    double goal_y = 0;
-    double goal_theta = 0;
-    bool changeGoal = false;
+    /**
+     * @brief
+     * Circular direction definition.
+     * Circular direction information
+     */
+    typedef enum{
+        CW = 1,
+        CCW = -1
+    } CIRCULAR_DIR;
+    CIRCULAR_DIR orientation_dir = CW;
 
-    // Error odemetry frame
-    double CarError_linearX = 0;
-    double CarError_linearY = 0;
-    double CarError_linear = 0;
-    double CarError_angular = 0;
+    // Private functions
 
-    // Calculate break point
-    // true : linear
-    // false : angular
-    double breakPoint(bool);
+    /**
+     * @brief Get the current state, FSM part
+     *
+     * @param location
+     */
+    void get_current_state(Vector3 location);
 
-    // Omega direction
-    int CarDir_angular = 1;
-    void get_orientationDir(double);
+    void get_breakPoint(Vector3 location);
 
-    // Velocity info and theta info
-    double CarVel_linear = 0;
-    double CarVel_angular = 0;
-    double sinpha = 0;
-    double cospha = 0;
+    void get_pcontrol_point(Vector3 location);
 
-    // About linear vector information
-    double Gsin = 0;
-    double Gcos = 0;
-    void Gpha();
+    Vector3 get_error_vector(Vector3 location);
 
-    // P controller
-    const double P = 0.50;
+    // Basic variables
+    Vector3 GoalPosition;
+    Vector3 ErrorVector;
+    double CarLinear_vel;
+    double CarAngular_vel;
+    double breakpoint_linear = 0;
+    double breakpoint_angular = 0;
+    double p_control_point = 0;
+    double p_angular = 0;
 
-    // Velocity restriction
-    const double maxSpeed = 0.28;
-    const double maxOmega = 0.9;
-
-    // Use V control
-    const double CarAccel = 0.23; /* Linear acceloration */
-    const double CarAlpha = 0.28; /* Angular acceloration */
-
-    // DEVIATION
-    const double xyDeviation = 0.005;
-    const double tDeviation = 0.05;
+    // Basic constants
+    const double P_gain = 0.8;           /* P gain for p controller */
+    const double CarSpeed_MAX = 0.28;    /* Max car linear speed */
+    const double CarOmega_MAX = 1.2;     /* Max car angular speed */
+    const double CarAccel = 0.1;         /* Car linear acceleration */
+    const double CarAlpha = 0.5;         /* Car angular acceleration */
+    const double CarErrorLinear = 0.00001;  /* Min car linear error */
+    const double CarErrorAngular = 0.04;  /* Min car angular error */
 };
 
 #endif /* POINTCONTROLLER_H_ */

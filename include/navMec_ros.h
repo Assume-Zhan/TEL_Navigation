@@ -24,7 +24,7 @@ void subCBPP(const geometry_msgs::Twist::ConstPtr&);
 // --- vars ---
 bool trigger = false;
 bool firstTrigger = true;
-PointController pointControl(3.35, -0.50, 0);
+PointController pointControl(Vector3(0., -0.5, 0.));
 PurePursuit purepursuit;
 
 
@@ -44,8 +44,8 @@ public:
 };
 
 int count = 0;
-int maxCount = 7;
-vector3 vectors[7];
+int maxCount = 2;
+vector3 vectors[17];
 void constructVectors();
 // --- Need to be removed --- E
 

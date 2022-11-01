@@ -41,9 +41,6 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
     }
 #endif /* DEBUGGER_MODE */
 
-    // Renew Information
-    pointControl.RenewInfo();
-
     /**
      * @brief
      * If trigger --> start to nagigation
@@ -77,7 +74,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 #ifdef DEBUGGER_MODE
     else if(count < maxCount){
         std::cout << "Got goal : " << count << '\n';
-        pointControl.set_vgoal(vectors[count].x, vectors[count].y, vectors[count].theta);
+        pointControl.set_vgoal(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
         count++;
         navMec_pub.publish(cmd_vel);
     }
@@ -132,13 +129,10 @@ void subCBPP(const geometry_msgs::Twist::ConstPtr& msg){
 
 // --- Need to be removed --- S
 void constructVectors(){
-    vectors[0].setxyz(3.35, -0.5, 0.);
-    vectors[1].setxyz(3.35, -0.7, 0);
-    vectors[2].setxyz(4.6, -0.7, 0);
-    vectors[3].setxyz(4.6, -0.275, 0);
-    vectors[4].setxyz(5.6, -0.275, 0);
-    vectors[5].setxyz(5.6, -0.65, 0);
-    vectors[6].setxyz(6.6, -0.65, 0);
+    vectors[0].setxyz(0., -0.5, 0.);
+    vectors[1].setxyz(0.5, -0.5, 0);
+    vectors[2].setxyz(0.97, -0.65, 0);
+    vectors[3].setxyz(2.47, -0.65, 0);
 }
 // --- Need to be removed --- E
 
@@ -155,3 +149,11 @@ void constructVectors(){
 // vectors[10].setxyz(0.325, 5.75, 0);
 // vectors[11].setxyz(0.65, 5.95, 0);
 // vectors[12].setxyz(0.65, 6.75, 0);
+
+// vectors[0].setxyz(3.35, -0.5, 0.);
+// vectors[1].setxyz(3.35, -0.7, 0);
+// vectors[2].setxyz(4.6, -0.7, 0);
+// vectors[3].setxyz(4.6, -0.275, 0);
+// vectors[4].setxyz(5.6, -0.275, 0);
+// vectors[5].setxyz(5.6, -0.65, 0);
+// vectors[6].setxyz(6.6, -0.65, 0);
