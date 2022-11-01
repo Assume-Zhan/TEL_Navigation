@@ -115,7 +115,7 @@ private:
     double p_angular = 0;
 
     // Basic constants
-    const double P_gain = 0.64;           /* P gain for p controller */
+    const double P_gain = 0.6;           /* P gain for p controller */
     const double CarSpeed_MAX = 0.28;    /* Max car linear speed */
     const double CarOmega_MAX = 1.2;     /* Max car angular speed */
     const double CarAccel = 0.1;         /* Car linear acceleration */

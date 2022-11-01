@@ -25,7 +25,7 @@ void PointController::check_get_goal(Vector3 location_vector){
 
     this->get_current_state(location_vector);
 
-    if(abs(this->ErrorVector) >= (this->CarErrorLinear + abs(this->offset)))
+    if(abs(this->ErrorVector) >= this->CarErrorLinear)
         this->getGoal = false;
     else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
@@ -33,6 +33,11 @@ void PointController::check_get_goal(Vector3 location_vector){
 }
 
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
+
+    ///////
+    this->offset.x = 0.03 * location_vector.x;
+    this->offset.y = 0;
+    ///////
 
     // Calculating error vector and goal sin, cos
     this->ErrorVector = this->get_error_vector(location_vector);
@@ -46,11 +51,6 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     }
     Gcos = this->ErrorVector.x / abs(this->ErrorVector);
     Gsin = this->ErrorVector.y / abs(this->ErrorVector);
-
-    ///////
-    this->offset.x = 0.03 * location_vector.x;
-    this->offset.y = 0;
-    ///////
 
     geometry_msgs::Twist cmd_vel;
 
@@ -122,7 +122,7 @@ void PointController::get_current_state(Vector3 location){
     this->get_pcontrol_point(location);
 
     // First check the to STOP state
-    if(linear_error < (this->CarErrorLinear + abs(this->offset)))
+    if(linear_error < this->CarErrorLinear)
         this->CarState_linear = STOP;
     else{
         switch(this->CarState_linear){
@@ -192,7 +192,7 @@ Vector3 PointController::get_error_vector(Vector3 location){
 
     // Operator overloading 
     // Minus to get error vector
-    Vector3 error_vector = this->GoalPosition - location;
+    Vector3 error_vector = this->GoalPosition - location - this->offset;
 
     // Change the error vector from world frame to macanum frame
     double sintheta = std::sin(-location.theta);
