@@ -17,9 +17,7 @@ void PointController::set_vgoal(Vector3 goal){
 
 void PointController::check_get_goal(Vector3 location_vector){
     // Calculating error vector and goal sin, cos
-    this->ErrorVector.x = this->GoalPosition.x - location_vector.x;
-    this->ErrorVector.y = this->GoalPosition.y - location_vector.y;
-    this->ErrorVector.theta = this->GoalPosition.theta - location_vector.theta;
+    this->ErrorVector = this->get_error_vector(location_vector);
 
     if(this->ErrorVector.theta > PI) this->ErrorVector.theta -= 2 * PI;
     else if(this->ErrorVector.theta < -PI) this->ErrorVector.theta += 2 * PI;
@@ -36,9 +34,7 @@ void PointController::check_get_goal(Vector3 location_vector){
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
 
     // Calculating error vector and goal sin, cos
-    this->ErrorVector.x = this->GoalPosition.x - location_vector.x;
-    this->ErrorVector.y = this->GoalPosition.y - location_vector.y;
-    this->ErrorVector.theta = this->GoalPosition.theta - location_vector.theta;
+    this->ErrorVector = this->get_error_vector(location_vector);
 
     if(this->ErrorVector.theta > PI) this->ErrorVector.theta -= 2 * PI;
     else if(this->ErrorVector.theta < -PI) this->ErrorVector.theta += 2 * PI;
