@@ -44,7 +44,7 @@ public:
 };
 
 int count = 0;
-int maxCount = 3;
+int maxCount = 2;
 vector3 vectors[13];
 void constructVectors();
 // --- Need to be removed --- E

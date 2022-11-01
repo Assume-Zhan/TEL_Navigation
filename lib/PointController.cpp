@@ -21,11 +21,14 @@ void PointController::check_get_goal(Vector3 location_vector){
     this->ErrorVector.y = this->GoalPosition.y - location_vector.y;
     this->ErrorVector.theta = this->GoalPosition.theta - location_vector.theta;
 
+    if(this->ErrorVector.theta > PI) this->ErrorVector.theta -= 2 * PI;
+    else if(this->ErrorVector.theta < -PI) this->ErrorVector.theta += 2 * PI;
+
     this->get_current_state(location_vector);
 
     if(abs(this->ErrorVector) > this->CarErrorLinear)
         this->getGoal = false;
-    else if(abs(this->ErrorVector) > this->CarErrorAngular)
+    else if(abs(this->ErrorVector.theta) > this->CarErrorAngular)
         this->getGoal = false;
     else this->getGoal = true;
 }
@@ -36,6 +39,9 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     this->ErrorVector.x = this->GoalPosition.x - location_vector.x;
     this->ErrorVector.y = this->GoalPosition.y - location_vector.y;
     this->ErrorVector.theta = this->GoalPosition.theta - location_vector.theta;
+
+    if(this->ErrorVector.theta > PI) this->ErrorVector.theta -= 2 * PI;
+    else if(this->ErrorVector.theta < -PI) this->ErrorVector.theta += 2 * PI;
 
     double Gcos, Gsin;
     if(abs(this->ErrorVector) == 0){
@@ -64,10 +70,39 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     cmd_vel.linear.x = this->CarLinear_vel * Gcos;
     cmd_vel.linear.y = this->CarLinear_vel * Gsin;
 
-    // TODO : Add angular velocity here
-    cmd_vel.angular.z = this->ErrorVector.theta;
+    // Get absolute angular velocity
+    double prev_omega = abs(velocity_vector.theta);
+    if(this->CarState_angular == ACCEL)
+        this->CarAngular_vel = prev_omega + (this->CarAlpha * time_diff);
+    else if(this->CarState_angular == SLOWDOWN)
+        this->CarAngular_vel = prev_omega - (this->CarAlpha * time_diff);
+    else if(this->CarState_angular == PCONTROL)
+        this->CarAngular_vel = abs(this->ErrorVector.theta) * this->P_gain;
+    else /* STOP state */
+        this->CarAngular_vel = 0;
 
-    ROS_INFO("State : %d\n", this->CarState_linear);
+    if(this->CarAngular_vel > this->CarOmega_MAX)
+        this->CarAngular_vel = this->CarOmega_MAX;
+
+    // TODO : Get direction of angular
+    if(abs(this->ErrorVector.theta) < PI){
+        if(this->ErrorVector.theta > 0)
+            this->orientation_dir = CW;
+        else
+            this->orientation_dir = CCW;
+    }
+    else{
+        if(this->ErrorVector.theta < 0)
+            this->orientation_dir = CW;
+        else
+            this->orientation_dir = CCW;
+    }
+
+    cmd_vel.angular.z = this->CarAngular_vel * this->orientation_dir;
+
+    ROS_INFO("State : %d, ang_bp : %lf, ang_err : %lf\n", this->CarState_angular,
+                                                          this->breakpoint_angular,
+                                                          abs(this->ErrorVector.theta));
 
     return cmd_vel;
 }
@@ -76,6 +111,7 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
 void PointController::get_current_state(Vector3 location){
 
     double linear_error = abs(this->ErrorVector);
+    double angular_error = abs(this->ErrorVector.theta);
 
     // We need to calculate the breakpoint and pcontrol point
     this->get_breakPoint(location);
@@ -106,20 +142,46 @@ void PointController::get_current_state(Vector3 location){
                 break;
         }
     }
+
+    // TODO : Angular state
+    if(angular_error < this->CarErrorAngular)
+        this->CarState_angular = STOP;
+    else{
+        switch(this->CarState_angular){
+            case STOP:
+                // From the STOP state to the ACCEL state when the error is bigger than the breakpoint
+                if(angular_error > this->breakpoint_angular)
+                    this->CarState_angular = ACCEL;
+                break;
+            case ACCEL:
+                // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
+                if(angular_error < this->breakpoint_angular)
+                    this->CarState_angular = SLOWDOWN;
+                break;
+            case SLOWDOWN:
+                // From the SLOWDOWN state to the PCONTROL state
+                if(angular_error < this->p_angular)
+                    this->CarState_angular = PCONTROL;
+                break;
+            case PCONTROL:
+                // TODO : we need more thing to take care of pure pursuit
+                break;
+        }
+    }
 }
 
 void PointController::get_breakPoint(Vector3 location){
 
     this->breakpoint_linear = pow(this->CarLinear_vel, 2) / (2 * this->CarAccel);
 
-    // TODO : Add angular breakpoint calculation here
+    this->breakpoint_angular = pow(this->CarAngular_vel, 2) / (2 * this->CarAlpha);
 }
 
 void PointController::get_pcontrol_point(Vector3 location){
 
     this->p_control_point = abs(this->CarLinear_vel) * this->P_gain;
 
-    // TODO : Add angular pcontrol breakpoint calculation here
+    this->p_angular = abs(this->CarAngular_vel) * this->P_gain;
 }
 
 Vector3 PointController::get_error_vector(Vector3 location){

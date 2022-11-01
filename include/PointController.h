@@ -107,9 +107,11 @@ private:
     Vector3 GoalPosition;
     Vector3 ErrorVector;
     double CarLinear_vel;
+    double CarAngular_vel;
     double breakpoint_linear = 0;
     double breakpoint_angular = 0;
     double p_control_point = 0;
+    double p_angular = 0;
 
     // Basic constants
     const double P_gain = 0.8;           /* P gain for p controller */
@@ -118,7 +120,7 @@ private:
     const double CarAccel = 0.1;         /* Car linear acceleration */
     const double CarAlpha = 0.3;         /* Car angular acceleration */
     const double CarErrorLinear = 0.01;  /* Min car linear error */
-    const double CarErrorAngular = 0.1;  /* Min car angular error */
+    const double CarErrorAngular = 0.04;  /* Min car angular error */
 };
 
 #endif /* POINTCONTROLLER_H_ */
