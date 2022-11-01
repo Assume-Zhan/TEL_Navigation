@@ -130,9 +130,17 @@ void subCBPP(const geometry_msgs::Twist::ConstPtr& msg){
 // --- Need to be removed --- S
 void constructVectors(){
     vectors[0].setxyz(0., -0.5, 0.);
-    vectors[1].setxyz(0.5, -0.5, 0);
+    vectors[1].setxyz(0.97, -0.2, 0);
     vectors[2].setxyz(0.97, -0.65, 0);
     vectors[3].setxyz(2.47, -0.65, 0);
+    vectors[4].setxyz(2.47, -0.2, 0);
+    vectors[5].setxyz(3.35, -0.2, 0);
+    vectors[6].setxyz(3.35, -0.7, 0);
+    vectors[7].setxyz(4.6, -0.7, 0);
+    vectors[8].setxyz(4.6, -0.275, 0);
+    vectors[9].setxyz(5.6, -0.275, 0);
+    vectors[10].setxyz(5.6, -0.65, 0);
+    vectors[11].setxyz(6.6, -0.65, 0);
 }
 // --- Need to be removed --- E
 

@@ -16,6 +16,7 @@ void PointController::set_vgoal(Vector3 goal){
 }
 
 void PointController::check_get_goal(Vector3 location_vector){
+
     // Calculating error vector and goal sin, cos
     this->ErrorVector = this->get_error_vector(location_vector);
 
@@ -24,9 +25,9 @@ void PointController::check_get_goal(Vector3 location_vector){
 
     this->get_current_state(location_vector);
 
-    if(abs(this->ErrorVector) > this->CarErrorLinear)
+    if(abs(this->ErrorVector) >= (this->CarErrorLinear + abs(this->offset)))
         this->getGoal = false;
-    else if(abs(this->ErrorVector.theta) > this->CarErrorAngular)
+    else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
     else this->getGoal = true;
 }
@@ -45,6 +46,11 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     }
     Gcos = this->ErrorVector.x / abs(this->ErrorVector);
     Gsin = this->ErrorVector.y / abs(this->ErrorVector);
+
+    ///////
+    this->offset.x = 0.03 * location_vector.x;
+    this->offset.y = 0;
+    ///////
 
     geometry_msgs::Twist cmd_vel;
 
@@ -116,7 +122,7 @@ void PointController::get_current_state(Vector3 location){
     this->get_pcontrol_point(location);
 
     // First check the to STOP state
-    if(linear_error < this->CarErrorLinear)
+    if(linear_error < (this->CarErrorLinear + abs(this->offset)))
         this->CarState_linear = STOP;
     else{
         switch(this->CarState_linear){
