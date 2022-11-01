@@ -102,19 +102,19 @@ private:
     void Gpha();
 
     // P controller
-    const double P = 0.65;
+    const double P = 0.50;
 
     // Velocity restriction
-    const double maxSpeed = 0.35;
+    const double maxSpeed = 0.28;
     const double maxOmega = 0.9;
 
     // Use V control
-    const double CarAccel = 0.18; /* Linear acceloration */
+    const double CarAccel = 0.23; /* Linear acceloration */
     const double CarAlpha = 0.28; /* Angular acceloration */
 
     // DEVIATION
-    const double xyDeviation = 0.01;
-    const double tDeviation = 0.1;
+    const double xyDeviation = 0.005;
+    const double tDeviation = 0.05;
 };
 
 #endif /* POINTCONTROLLER_H_ */

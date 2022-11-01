@@ -5,10 +5,22 @@
 PurePursuit::PurePursuit(){
     // Just for debug
     for(int i = 0; i < 100; i++){
-        this->path.push_back(Vector3(0. + (double)i / 100., 0., 0.));
+        this->path.push_back(Vector3(3.35, -0.5 - ((double)i / 100.) * 0.2, 0.));
     }
     for(int i = 0; i < 100; i++){
-        this->path.push_back(Vector3(1., 0. + (double)i / 100., 0.));
+        this->path.push_back(Vector3(3.35 + ((double)i / 100.) * 1.25, -0.7, 0.));
+    }
+    for(int i = 0; i < 100; i++){
+        this->path.push_back(Vector3(4.6, -0.7 + ((double)i / 100.) * 0.425, 0.));
+    }
+    for(int i = 0; i < 100; i++){
+        this->path.push_back(Vector3(4.6 + ((double)i / 100.) * 0.9, -0.275, 0.));
+    }
+    for(int i = 0; i < 100; i++){
+        this->path.push_back(Vector3(5.6, -0.275 - ((double)i / 100.) * 0.375, 0.));
+    }
+    for(int i = 0; i < 100; i++){
+        this->path.push_back(Vector3(5.6 + ((double)i / 100.) * 1, -0.65, 0.));
     }
 
     this->pointcontroller = new PointController;
