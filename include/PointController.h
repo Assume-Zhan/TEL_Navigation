@@ -6,6 +6,7 @@
 #include <string>
 
 // #define USING_OFFSET
+// #define CAR_CONSTANT
 #define PI 3.14159265358979323846
 
 /**
@@ -117,9 +118,6 @@ private:
     double p_angular = 0;
 
     // Basic constants
-    const double BP_LINEAR_CONST = 1.;
-    const double BP_ANGULAR_CONST = 1.;
-    const double PCONTROL_CONST = 1.;
     const double P_gain = 0.6;           /* P gain for p controller */
     const double CarSpeed_MAX = 0.28;    /* Max car linear speed */
     const double CarOmega_MAX = 1.2;     /* Max car angular speed */
@@ -127,6 +125,17 @@ private:
     const double CarAlpha = 0.5;         /* Car angular acceleration */
     const double CarErrorLinear = 0.01;  /* Min car linear error */
     const double CarErrorAngular = 0.04; /* Min car angular error */
+
+#ifdef CAR_CONSTANT
+    const double BP_LINEAR_CONST = 2.;
+    const double BP_ANGULAR_CONST = 1.5;
+    const double PCONTROL_CONST = 0.75;
+#else 
+    const double BP_LINEAR_CONST = 1.;
+    const double BP_ANGULAR_CONST = 1.;
+    const double PCONTROL_CONST = 1.;
+#endif /* CAR_CONSTANT */
+
 };
 
 #endif /* POINTCONTROLLER_H_ */
