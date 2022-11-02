@@ -34,10 +34,12 @@ void PointController::check_get_goal(Vector3 location_vector){
 
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
 
+#ifdef USING_OFFSET
     ///////
     this->offset.x = 0.03 * location_vector.x;
     this->offset.y = 0;
     ///////
+#endif /* USING_OFFSET */
 
     // Calculating error vector and goal sin, cos
     this->ErrorVector = this->get_error_vector(location_vector);
@@ -133,12 +135,12 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case ACCEL:
                 // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
-                if(linear_error < this->breakpoint_linear * 2)
+                if(linear_error < this->breakpoint_linear * this->BP_LINEAR_CONST)
                     this->CarState_linear = SLOWDOWN;
                 break;
             case SLOWDOWN:
                 // From the SLOWDOWN state to the PCONTROL state
-                if(abs(this->p_control_point - abs(this->ErrorVector) * this->P_gain) < this->CarAccel * 0.75)
+                if(abs(this->p_control_point - abs(this->ErrorVector) * this->P_gain) < this->CarAccel * this->PCONTROL_CONST)
                     this->CarState_linear = PCONTROL;
                 break;
             case PCONTROL:
@@ -159,12 +161,12 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case ACCEL:
                 // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
-                if(angular_error < this->breakpoint_angular * 1.5)
+                if(angular_error < this->breakpoint_angular * this->BP_ANGULAR_CONST)
                     this->CarState_angular = SLOWDOWN;
                 break;
             case SLOWDOWN:
                 // From the SLOWDOWN state to the PCONTROL state
-                if(abs(this->p_angular - abs(this->ErrorVector.theta) * this->P_gain) < this->CarAlpha * 0.75)
+                if(abs(this->p_angular - abs(this->ErrorVector.theta) * this->P_gain) < this->CarAlpha * this->PCONTROL_CONST)
                     this->CarState_angular = PCONTROL;
                 break;
             case PCONTROL:
