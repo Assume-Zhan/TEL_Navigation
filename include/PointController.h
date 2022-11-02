@@ -106,6 +106,7 @@ private:
     // Basic variables
     Vector3 GoalPosition;
     Vector3 ErrorVector;
+    Vector3 offset;
     double CarLinear_vel;
     double CarAngular_vel;
     double breakpoint_linear = 0;
@@ -114,12 +115,12 @@ private:
     double p_angular = 0;
 
     // Basic constants
-    const double P_gain = 0.8;           /* P gain for p controller */
+    const double P_gain = 0.6;           /* P gain for p controller */
     const double CarSpeed_MAX = 0.28;    /* Max car linear speed */
     const double CarOmega_MAX = 1.2;     /* Max car angular speed */
     const double CarAccel = 0.1;         /* Car linear acceleration */
-    const double CarAlpha = 0.3;         /* Car angular acceleration */
-    const double CarErrorLinear = 0.01;  /* Min car linear error */
+    const double CarAlpha = 0.5;         /* Car angular acceleration */
+    const double CarErrorLinear = 0.001;  /* Min car linear error */
     const double CarErrorAngular = 0.04;  /* Min car angular error */
 };
 

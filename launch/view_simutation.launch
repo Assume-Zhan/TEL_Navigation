@@ -1,21 +1,21 @@
 <launch>
 
     <!-- args -->
-    <arg name="rvizconfig" default="$(find nav_mec)/rviz/view.rviz" />
+    <!-- <arg name="rvizconfig" default="$(find nav_mec)/rviz/view.rviz" /> -->
     
     <!-- tf node -->
     <node pkg="mecanumLoc" type="location_tf.py" name="location_viewer" output="screen"/>
 
     <!-- location node -->
-    <node pkg="mecanumLoc" type="mecanumEnc" name="localization"/>
+    <node pkg="mecanumLoc" type="mecanumEnc" name="localization" output="screen"/>
 
     <!-- Navigation node -->
     <node pkg="nav_mec" type="navMec_node" name="navMec" output="screen"/>
 
     <!-- Encoder simulation -->
-    <node pkg="mecanumLoc" type="test.py" name="encoder_node"/>
+    <!-- <node pkg="mecanumLoc" type="test.py" name="encoder_node"/> -->
 
     <!-- RViz -->
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true"/>
+    <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true"/> -->
 
 </launch>

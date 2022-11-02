@@ -16,6 +16,7 @@ void PointController::set_vgoal(Vector3 goal){
 }
 
 void PointController::check_get_goal(Vector3 location_vector){
+
     // Calculating error vector and goal sin, cos
     this->ErrorVector = this->get_error_vector(location_vector);
 
@@ -24,14 +25,19 @@ void PointController::check_get_goal(Vector3 location_vector){
 
     this->get_current_state(location_vector);
 
-    if(abs(this->ErrorVector) > this->CarErrorLinear)
+    if(abs(this->ErrorVector) >= this->CarErrorLinear)
         this->getGoal = false;
-    else if(abs(this->ErrorVector.theta) > this->CarErrorAngular)
+    else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
     else this->getGoal = true;
 }
 
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
+
+    ///////
+    this->offset.x = 0.03 * location_vector.x;
+    this->offset.y = 0;
+    ///////
 
     // Calculating error vector and goal sin, cos
     this->ErrorVector = this->get_error_vector(location_vector);
@@ -96,9 +102,11 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
 
     cmd_vel.angular.z = this->CarAngular_vel * this->orientation_dir;
 
-    ROS_INFO("State : %d, ang_bp : %lf, ang_err : %lf\n", this->CarState_angular,
-                                                          this->breakpoint_angular,
-                                                          abs(this->ErrorVector.theta));
+    // ROS_INFO("State : %d, ang_bp : %lf, ang_err : %lf\n", this->CarState_angular,
+    //                                                       this->breakpoint_angular,
+    //                                                       abs(this->ErrorVector.theta));
+    // ROS_INFO("State : %d, prev : %lf, Car ang : %lf\n", this->CarState_angular, prev_omega, this->CarAngular_vel);
+    ROS_INFO("State : %d\n", this->CarState_linear);
 
     return cmd_vel;
 }
@@ -125,12 +133,12 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case ACCEL:
                 // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
-                if(linear_error < this->breakpoint_linear)
+                if(linear_error < this->breakpoint_linear * 2)
                     this->CarState_linear = SLOWDOWN;
                 break;
             case SLOWDOWN:
                 // From the SLOWDOWN state to the PCONTROL state
-                if(linear_error < this->p_control_point)
+                if(abs(this->p_control_point - abs(this->ErrorVector) * this->P_gain) < this->CarAccel * 0.75)
                     this->CarState_linear = PCONTROL;
                 break;
             case PCONTROL:
@@ -151,12 +159,12 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case ACCEL:
                 // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
-                if(angular_error < this->breakpoint_angular)
+                if(angular_error < this->breakpoint_angular * 1.5)
                     this->CarState_angular = SLOWDOWN;
                 break;
             case SLOWDOWN:
                 // From the SLOWDOWN state to the PCONTROL state
-                if(angular_error < this->p_angular)
+                if(abs(this->p_angular - abs(this->ErrorVector.theta) * this->P_gain) < this->CarAlpha * 0.75)
                     this->CarState_angular = PCONTROL;
                 break;
             case PCONTROL:
@@ -184,7 +192,7 @@ Vector3 PointController::get_error_vector(Vector3 location){
 
     // Operator overloading 
     // Minus to get error vector
-    Vector3 error_vector = this->GoalPosition - location;
+    Vector3 error_vector = this->GoalPosition - location - this->offset;
 
     // Change the error vector from world frame to macanum frame
     double sintheta = std::sin(-location.theta);
