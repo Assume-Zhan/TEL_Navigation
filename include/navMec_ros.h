@@ -1,8 +1,6 @@
 #ifndef NAV_MEC_NODE_H_
 #define NAV_MEC_NODE_H_
 
-// #define DEBUGGER_MODE
-
 #include <ros/ros.h>
 #include <nav_mec/navMec_srv.h>
 #include <nav_mec/navMec_fsrv.h>
