@@ -108,7 +108,7 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     //                                                       this->breakpoint_angular,
     //                                                       abs(this->ErrorVector.theta));
     // ROS_INFO("State : %d, prev : %lf, Car ang : %lf\n", this->CarState_angular, prev_omega, this->CarAngular_vel);
-    ROS_INFO("State : %d\n", this->CarState_linear);
+    // ROS_INFO("State : %d\n", this->CarState_linear);
 
     return cmd_vel;
 }
