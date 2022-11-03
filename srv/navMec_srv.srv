@@ -1,3 +1,4 @@
 bool start
+geometry_msgs/Point next
 ---
 bool get_request

@@ -1,7 +1,7 @@
 #ifndef NAV_MEC_NODE_H_
 #define NAV_MEC_NODE_H_
 
-#define DEBUGGER_MODE
+// #define DEBUGGER_MODE
 
 #include <ros/ros.h>
 #include <nav_mec/navMec_srv.h>
@@ -23,7 +23,6 @@ void subCBPP(const geometry_msgs::Twist::ConstPtr&);
 
 // --- vars ---
 bool trigger = false;
-bool firstTrigger = true;
 PointController pointControl(Vector3(0., -0.5, 0.));
 PurePursuit purepursuit;
 

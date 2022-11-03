@@ -6,12 +6,17 @@
 // --- Implement callback functions ---
 /* Server Callback function */
 bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& res){
-    if(req.start == true)
-        trigger = true,
+    if(req.start == true){
+        trigger = true;
         res.get_request = true;
-    else
-        trigger = true,
+
+        /* Set next point */
+        pointControl.set_vgoal(Vector3(req.next.x, req.next.y, req.next.z));
+    }
+    else{
+        trigger = false;
         res.get_request = false;
+    }
 
     return true;
 }
@@ -28,16 +33,6 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         // Don't move the chasis ---> give 0 speed ---> return
         navMec_pub.publish(cmd_vel);
         return;
-    }
-    else if(firstTrigger){
-        while(pointControl.check_get_goal(msg)){
-            if(count < maxCount){
-                pointControl.set_vgoal(vectors[count].x, vectors[count].y, vectors[count].theta);
-                count++;
-            }
-            else break;
-        }
-        firstTrigger = false;
     }
 #endif /* DEBUGGER_MODE */
 
@@ -92,12 +87,6 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         // Ignore the response
 
         time_before = time_after = 0;
-
-        // Set next goal
-        if(count < maxCount){
-            pointControl.set_vgoal(vectors[count].x, vectors[count].y, vectors[count].theta);
-            count++;
-        }
     }
 #endif /* DEBUGGER_MODE */
 }
