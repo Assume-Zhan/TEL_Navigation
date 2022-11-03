@@ -1,20 +1,35 @@
 # NAV_MEC
 > Navigation node
+
 ---
-### File system
-- Node Handle : navMec_node.cpp
-    - node name : <font color="fx56">"navMec_node"</font>
-    - node handle name : <font color="fx56">"navMec_nh"</font>
-    - include : navMec_ros.h
-- ROS system
-    - Refer : <font color="fx56">"navMec_ros.h"</font>
-    - Service : srv/navMec_srv.srv, navMec_fsrv.srv
-    - Server : "navMec_ser" 
-        - Callback function : "serverCB"
-    - Client : "navMec_cli"
-    - Publisher : "navMec_pub"
-    - Subscriber : "navMec_sub"
-        - Callback function : "subCB"
-- PointController
-    - Header file : <font color="fx56">"PointController.h"</font>
-    - Library file : <font color="fx56">"PointController.cpp"</font>
+
+## File system
+- Node Handle : Node Handle
+    - Node name : navMec_node
+    - NH name : navMec_nh
+    - header file : navMec_ros.h
+- Point Controller
+    - header file : PointController.h
+    - library file : PointController.cpp
+- Pure pursuit
+    - header file : PurePursuit.h
+    - library file : PurePursuit.cpp
+
+---
+
+## Launch file 
+
+---
+
+## Usage
+
+---
+
+## :warning: Important note
+- SLOWDOWN should be design properly
+- Use private parameters
+```cpp=1
+ros::param::get("~debugmode", debug_mode);
+```
+- If the node is not the main machine, debug_mode should be set by bool value.
+    - If we set the debug mode as define, it is diffcult to change mode by launch file
