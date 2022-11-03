@@ -10,6 +10,7 @@ int main(int argc, char** argv){
     // Get private parameters
     ros::param::get("~debugmode", debug_mode);
 
+    // DEBUGMODE : construct vector
     if(debug_mode) constructVectors();
 
     // Here we act like a """server/client + pub/sub"""
@@ -21,6 +22,7 @@ int main(int argc, char** argv){
     // client will tell smach that we have done all the thing.
 
     // Init our server/client, pub/sub
+    // DEBUGMODE : Setting server and client
     if(!debug_mode){
         navMec_ser = navMec_nh.advertiseService("navMec_trigger", serverCB);
         navMec_cli = navMec_nh.serviceClient<nav_mec::navMec_fsrv>("navMec_resp");

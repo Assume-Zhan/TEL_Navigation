@@ -27,7 +27,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
     geometry_msgs::Twist cmd_vel;
 
-    if(!debug_mode && !trigger){
+    if(!debug_mode /* DEBUGMODE */ && !trigger){
         // Haven't trigger the navigation
         // Don't move the chasis ---> give 0 speed ---> return
         navMec_pub.publish(cmd_vel);
@@ -65,7 +65,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         cmd_vel = pointControl.get_vgoal(location, velocity, time_diff);
         navMec_pub.publish(cmd_vel);
     }
-    else if(debug_mode && count < maxCount){
+    else if(debug_mode /* DEBUGMODE */ && count < maxCount){
         std::cout << "Got goal : " << count << '\n';
         pointControl.set_vgoal(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
         count++;
@@ -75,7 +75,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
 
     /* If we got the goal --> send success info */
-    if(!debug_mode && /* if we get the goal */ pointControl.getGoal){
+    if(!debug_mode /* DEBUGMODE */ && /* if we get the goal */ pointControl.getGoal){
         trigger = false;
         nav_mec::navMec_fsrv res_srv;
         res_srv.request.finished = true;
