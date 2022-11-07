@@ -15,6 +15,29 @@ void PointController::set_vgoal(Vector3 goal){
     return;
 }
 
+void PointController::set_const(bool carconst, BasicConst basicconst){
+
+    this->P_gain = basicconst.P_gain;
+    this->CarSpeed_MAX = basicconst.CarSpeed_MAX;
+    this->CarOmega_MAX = basicconst.CarOmega_MAX;
+    this->CarAccel = basicconst.CarAccel;
+    this->CarAlpha = basicconst.CarAlpha;
+    this->CarErrorLinear = basicconst.CarErrorLinear;
+    this->CarErrorAngular = basicconst.CarErrorAngular;
+
+    if(carconst){
+        this->BP_LINEAR_CONST = basicconst.BP_LINEAR_CONST;
+        this->BP_ANGULAR_CONST = basicconst.BP_ANGULAR_CONST;
+        this->PCONTROL_CONST = basicconst.PCONTROL_CONST;
+    }
+    else{
+        this->BP_LINEAR_CONST = 1;
+        this->BP_ANGULAR_CONST = 1;
+        this->PCONTROL_CONST = 1;
+    }
+
+}
+
 void PointController::check_get_goal(Vector3 location_vector){
 
     // Calculating error vector and goal sin, cos
@@ -34,12 +57,11 @@ void PointController::check_get_goal(Vector3 location_vector){
 
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
 
-#ifdef USING_OFFSET
-    ///////
-    this->offset.x = 0.03 * location_vector.x;
-    this->offset.y = 0;
-    ///////
-#endif /* USING_OFFSET */
+    // Calculate the offset
+    if(this->using_offset){
+        this->offset.x = 0.03 * location_vector.x;
+        this->offset.y = 0;
+    }
 
     // Calculating error vector and goal sin, cos
     this->ErrorVector = this->get_error_vector(location_vector);

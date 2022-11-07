@@ -9,9 +9,24 @@ int main(int argc, char** argv){
     // Get parameter : debug mode
     // Get private parameters
     ros::param::get("~debugmode", debug_mode);
+    ros::param::get("~usingoffset", pointControl.using_offset);
+    ros::param::get("~pgain", basicconst.P_gain);
+    ros::param::get("~carSpeedMax", basicconst.CarSpeed_MAX);
+    ros::param::get("~carOmegaMax", basicconst.CarOmega_MAX);
+    ros::param::get("~carAccel", basicconst.CarAccel);
+    ros::param::get("~carAlpha", basicconst.CarAlpha);
+    ros::param::get("~carErrorLinear", basicconst.CarErrorLinear);
+    ros::param::get("~carErrorAngular", basicconst.CarErrorAngular);
+
+    ros::param::get("~carConst", carconst);
+
+    ros::param::get("~bpLinear", basicconst.BP_LINEAR_CONST);
+    ros::param::get("~bpAngular", basicconst.BP_ANGULAR_CONST);
+    ros::param::get("~pcontrolconst", basicconst.PCONTROL_CONST);
 
     // DEBUGMODE : construct vector
     if(debug_mode) constructVectors();
+    pointControl.set_const(carconst, basicconst);
 
     // Here we act like a """server/client + pub/sub"""
     // Server will first receive data from smach, and trigger the pure pursuit.

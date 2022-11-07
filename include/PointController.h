@@ -6,8 +6,6 @@
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
 
-#define USING_OFFSET
-#define CAR_CONSTANT
 #define PI 3.14159265358979323846
 
 /**
@@ -35,6 +33,25 @@ double abs(Vector3 v){ return sqrt(v.x * v.x + v.y * v.y); }
 
 /**
  * @brief
+ * Basic constant
+ * For setting the basic constant value in pointcontroller
+ */
+typedef struct BasicConst{
+    double P_gain = 0.6;           /* P gain for p controller */
+    double CarSpeed_MAX = 0.7;     /* Max car linear speed */
+    double CarOmega_MAX = 1.2;     /* Max car angular speed */
+    double CarAccel = 0.15;        /* Car linear acceleration */
+    double CarAlpha = 0.5;         /* Car angular acceleration */
+    double CarErrorLinear = 0.01;  /* Min car linear error */
+    double CarErrorAngular = 0.04; /* Min car angular error */
+
+    double BP_LINEAR_CONST = 2.;
+    double BP_ANGULAR_CONST = 1.5;
+    double PCONTROL_CONST = 0.75;
+} BasicConst;
+
+/**
+ * @brief
  * PointController
  * Calculating a proper velocity vector for
  * known location and velocity
@@ -45,6 +62,10 @@ public:
     PointController(){}
     PointController(Vector3 goal): GoalPosition(goal){
     }
+
+    // DEBUGMODE : Some debug value 
+    bool using_offset = true;
+    void set_const(bool, BasicConst);
 
     // Get goal
     void set_vgoal(Vector3);
@@ -117,23 +138,17 @@ private:
     double p_angular = 0;
 
     // Basic constants
-    const double P_gain = 0.6;           /* P gain for p controller */
-    const double CarSpeed_MAX = 0.7;    /* Max car linear speed */
-    const double CarOmega_MAX = 1.2;     /* Max car angular speed */
-    const double CarAccel = 0.15;         /* Car linear acceleration */
-    const double CarAlpha = 0.5;         /* Car angular acceleration */
-    const double CarErrorLinear = 0.01;  /* Min car linear error */
-    const double CarErrorAngular = 0.04; /* Min car angular error */
+    double P_gain = 0.6;           /* P gain for p controller */
+    double CarSpeed_MAX = 0.7;     /* Max car linear speed */
+    double CarOmega_MAX = 1.2;     /* Max car angular speed */
+    double CarAccel = 0.15;        /* Car linear acceleration */
+    double CarAlpha = 0.5;         /* Car angular acceleration */
+    double CarErrorLinear = 0.01;  /* Min car linear error */
+    double CarErrorAngular = 0.04; /* Min car angular error */
 
-#ifdef CAR_CONSTANT
-    const double BP_LINEAR_CONST = 2.;
-    const double BP_ANGULAR_CONST = 1.5;
-    const double PCONTROL_CONST = 0.75;
-#else
-    const double BP_LINEAR_CONST = 1.;
-    const double BP_ANGULAR_CONST = 1.;
-    const double PCONTROL_CONST = 1.;
-#endif /* CAR_CONSTANT */
+    double BP_LINEAR_CONST = 2.;
+    double BP_ANGULAR_CONST = 1.5;
+    double PCONTROL_CONST = 0.75;
 };
 
 #endif /* POINTCONTROLLER_H_ */

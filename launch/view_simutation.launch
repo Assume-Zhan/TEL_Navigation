@@ -11,7 +11,38 @@
 
     <!-- Navigation node -->
     <node pkg="nav_mec" type="navMec_node" name="navMec_node" output="screen">
+        <!-- DEBUG_MODE for navigation -->
         <param name="debugmode" type="bool" value="true"/>
+
+        <!-- Toggle the offset usage -->
+        <param name="usingoffset" type="bool" value="false"/>
+
+        <!-- Toggle basic car accel and slow down constant -->
+        <param name="carConst" type="bool" value="false"/>
+
+        <!-- P gain constant for P controller -->
+        <param name="pgain" type="double" value="0.6"/>
+
+        <!-- Car linear and angular max speed -->
+        <param name="carSpeedMax" type="double" value="0.7"/>
+        <param name="carOmegaMax" type="double" value="1.2"/>
+
+        <!-- Car linear and angular acceleration -->
+        <param name="carAccel" type="double" value="0.15"/>
+        <param name="carAlpha" type="double" value="0.5"/>
+
+        <!-- Car linear and angular tolerated error -->
+        <param name="carErrorLinear" type="double" value="0.01"/>
+        <param name="carErrorAngular" type="double" value="0.04"/>
+
+        <!-- Constant for ACCEL to SLOWDOWN linear -->
+        <param name="bpLinear" type="double" value="2."/>
+
+        <!-- Constant for ACCEL to SLOWDOWN angular -->
+        <param name="bpAngular" type="double" value="1.5"/>
+
+        <!-- Constant for SLOWDOWN to PCONTROL -->
+        <param name="pcontrolconst" type="double" value="0.75"/>
     </node>
 
     <!-- Encoder simulation -->

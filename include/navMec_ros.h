@@ -26,6 +26,8 @@ PurePursuit purepursuit;
 
 // DEBUGMODE : debug mode variable
 bool debug_mode = false;
+bool carconst = true;
+BasicConst basicconst;
 
 // --- Need to be removed --- S
 class vector3{
