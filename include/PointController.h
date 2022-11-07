@@ -1,12 +1,13 @@
 #ifndef POINTCONTROLLER_H_
 #define POINTCONTROLLER_H_
 
-#include "geometry_msgs/Twist.h"
-#include "ros/ros.h"
 #include <string>
 
-// #define USING_OFFSET
-// #define CAR_CONSTANT
+#include "geometry_msgs/Twist.h"
+#include "ros/ros.h"
+
+#define USING_OFFSET
+#define CAR_CONSTANT
 #define PI 3.14159265358979323846
 
 /**
@@ -20,11 +21,10 @@ typedef struct Vector3{
     double theta = 0;
 
     Vector3(){}
-    Vector3(double x, double y, double z):
-        x(x), y(y), theta(z){
+    Vector3(double x, double y, double z): x(x), y(y), theta(z){
     }
 
-    Vector3 operator - (Vector3 a) const{
+    Vector3 operator-(Vector3 a) const{
         return Vector3(this->x - a.x, this->y - a.y, this->theta - a.theta);
     }
 
@@ -41,10 +41,9 @@ double abs(Vector3 v){ return sqrt(v.x * v.x + v.y * v.y); }
  */
 class PointController{
 public:
-    // Constructors
+ // Constructors
     PointController(){}
-    PointController(Vector3 goal):
-        GoalPosition(goal){
+    PointController(Vector3 goal): GoalPosition(goal){
     }
 
     // Get goal
@@ -66,11 +65,11 @@ public:
     geometry_msgs::Twist get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff);
 
 private:
-    /**
-     * @brief
-     * Motion state Definition.
-     * State information.
-     */
+ /**
+  * @brief
+  * Motion state Definition.
+  * State information.
+  */
     typedef enum{
         STOP = 0,
         ACCEL = 1,
@@ -119,9 +118,9 @@ private:
 
     // Basic constants
     const double P_gain = 0.6;           /* P gain for p controller */
-    const double CarSpeed_MAX = 0.28;    /* Max car linear speed */
+    const double CarSpeed_MAX = 0.7;    /* Max car linear speed */
     const double CarOmega_MAX = 1.2;     /* Max car angular speed */
-    const double CarAccel = 0.1;         /* Car linear acceleration */
+    const double CarAccel = 0.15;         /* Car linear acceleration */
     const double CarAlpha = 0.5;         /* Car angular acceleration */
     const double CarErrorLinear = 0.01;  /* Min car linear error */
     const double CarErrorAngular = 0.04; /* Min car angular error */
@@ -130,12 +129,11 @@ private:
     const double BP_LINEAR_CONST = 2.;
     const double BP_ANGULAR_CONST = 1.5;
     const double PCONTROL_CONST = 0.75;
-#else 
+#else
     const double BP_LINEAR_CONST = 1.;
     const double BP_ANGULAR_CONST = 1.;
     const double PCONTROL_CONST = 1.;
 #endif /* CAR_CONSTANT */
-
 };
 
 #endif /* POINTCONTROLLER_H_ */
