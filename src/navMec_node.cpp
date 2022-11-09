@@ -10,6 +10,14 @@ int main(int argc, char** argv){
     // Get private parameters
     ros::param::get("~debugmode", debug_mode);
     ros::param::get("~usingoffset", pointControl.using_offset);
+
+    ros::param::get("~offset_x_a", basicconst.offset_const_xa);
+    ros::param::get("~offset_x_b", basicconst.offset_const_xb);
+    ros::param::get("~offset_y_a", basicconst.offset_const_ya);
+    ros::param::get("~offset_y_b", basicconst.offset_const_yb);
+    ros::param::get("~offset_z_a", basicconst.offset_const_za);
+    ros::param::get("~offset_z_b", basicconst.offset_const_zb);
+
     ros::param::get("~pgain", basicconst.P_gain);
     ros::param::get("~carSpeedMax", basicconst.CarSpeed_MAX);
     ros::param::get("~carOmegaMax", basicconst.CarOmega_MAX);

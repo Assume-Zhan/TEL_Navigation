@@ -15,7 +15,14 @@
         <param name="debugmode" type="bool" value="true"/>
 
         <!-- Toggle the offset usage -->
-        <param name="usingoffset" type="bool" value="false"/>
+        <!-- Offset = a * distance + b -->
+        <param name="usingoffset" type="bool" value="false"/>   
+        <param name="offset_x_a" type="double" value="0.03"/> 
+        <param name="offset_x_b" type="double" value="0."/>
+        <param name="offset_y_a" type="double" value="0."/>
+        <param name="offset_y_b" type="double" value="0."/>
+        <param name="offset_z_a" type="double" value="0."/>
+        <param name="offset_z_b" type="double" value="0."/>
 
         <!-- Toggle basic car accel and slow down constant -->
         <param name="carConst" type="bool" value="false"/>

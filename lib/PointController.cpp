@@ -25,6 +25,24 @@ void PointController::set_const(bool carconst, BasicConst basicconst){
     this->CarErrorLinear = basicconst.CarErrorLinear;
     this->CarErrorAngular = basicconst.CarErrorAngular;
 
+    if(this->using_offset){
+        this->offset_const_xa = basicconst.offset_const_xa;
+        this->offset_const_xb = basicconst.offset_const_xb;
+        this->offset_const_ya = basicconst.offset_const_ya;
+        this->offset_const_yb = basicconst.offset_const_yb;
+        this->offset_const_za = basicconst.offset_const_za;
+        this->offset_const_zb = basicconst.offset_const_zb;
+    }
+    else{
+
+        this->offset_const_xa = 0;
+        this->offset_const_xb = 0;
+        this->offset_const_ya = 0;
+        this->offset_const_yb = 0;
+        this->offset_const_za = 0;
+        this->offset_const_zb = 0;
+    }
+
     if(carconst){
         this->BP_LINEAR_CONST = basicconst.BP_LINEAR_CONST;
         this->BP_ANGULAR_CONST = basicconst.BP_ANGULAR_CONST;
@@ -58,10 +76,10 @@ void PointController::check_get_goal(Vector3 location_vector){
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
 
     // Calculate the offset
-    if(this->using_offset){
-        this->offset.x = 0.03 * location_vector.x;
-        this->offset.y = 0;
-    }
+    this->offset.x = this->offset_const_xa * location_vector.x + this->offset_const_xb;
+    this->offset.y = this->offset_const_ya * location_vector.y + this->offset_const_yb;
+    this->offset.theta = this->offset_const_za * location_vector.theta + this->offset_const_zb;
+    ROS_DEBUG_STREAM("OFFSET : " << this->offset.x << " " << this->offset.y << " " << this->offset.theta);
 
     // Calculating error vector and goal sin, cos
     this->ErrorVector = this->get_error_vector(location_vector);

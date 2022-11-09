@@ -48,6 +48,13 @@ typedef struct BasicConst{
     double BP_LINEAR_CONST = 2.;
     double BP_ANGULAR_CONST = 1.5;
     double PCONTROL_CONST = 0.75;
+
+    double offset_const_xa = 0.03;
+    double offset_const_xb = 0;
+    double offset_const_ya = 0;
+    double offset_const_yb = 0;
+    double offset_const_za = 0;
+    double offset_const_zb = 0;
 } BasicConst;
 
 /**
@@ -149,6 +156,13 @@ private:
     double BP_LINEAR_CONST = 2.;
     double BP_ANGULAR_CONST = 1.5;
     double PCONTROL_CONST = 0.75;
+
+    double offset_const_xa = 0.03;
+    double offset_const_xb = 0;
+    double offset_const_ya = 0;
+    double offset_const_yb = 0;
+    double offset_const_za = 0;
+    double offset_const_zb = 0;
 };
 
 #endif /* POINTCONTROLLER_H_ */
