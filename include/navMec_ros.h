@@ -21,7 +21,7 @@ void subCBPP(const geometry_msgs::Twist::ConstPtr&);
 
 // --- vars ---
 bool trigger = false;
-PointController pointControl(Vector3(0., -0.5, 0.));
+PointController pointControl;
 PurePursuit purepursuit;
 
 // DEBUGMODE : debug mode variable
