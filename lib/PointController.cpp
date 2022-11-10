@@ -128,7 +128,6 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     if(this->CarAngular_vel > this->CarOmega_MAX)
         this->CarAngular_vel = this->CarOmega_MAX;
 
-    // TODO : Get direction of angular
     if(abs(this->ErrorVector.theta) < PI){
         if(this->ErrorVector.theta > 0)
             this->orientation_dir = CW;
@@ -180,7 +179,7 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case SLOWDOWN:
                 // From the SLOWDOWN state to the PCONTROL state
-                if(abs(this->p_control_point - abs(this->ErrorVector) * this->P_gain) < this->CarAccel * this->PCONTROL_CONST)
+                if(abs(this->p_control_point - linear_error * this->P_gain) < this->CarAccel * this->PCONTROL_CONST)
                     this->CarState_linear = PCONTROL;
                 break;
             case PCONTROL:
@@ -189,7 +188,6 @@ void PointController::get_current_state(Vector3 location){
         }
     }
 
-    // TODO : Angular state
     if(angular_error < this->CarErrorAngular)
         this->CarState_angular = STOP;
     else{
