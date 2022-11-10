@@ -27,12 +27,6 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
     geometry_msgs::Twist cmd_vel;
 
-    // Set first goal
-    if(!pointControl.set_first_goal){
-        pointControl.set_vgoal(Vector3(msg->linear.x, msg->linear.y, msg->angular.z));
-        pointControl.set_first_goal = true;
-    }
-
     if(!debug_mode /* DEBUGMODE */ && !trigger){
         // Haven't trigger the navigation
         // Don't move the chasis ---> give 0 speed ---> return

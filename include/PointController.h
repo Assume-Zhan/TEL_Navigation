@@ -79,7 +79,6 @@ public:
 
     // Check get the goal
     void check_get_goal(Vector3);
-    bool set_first_goal = false;
     bool getGoal;
 
     /**
