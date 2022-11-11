@@ -131,7 +131,7 @@ private:
 
     void get_pcontrol_point(Vector3 location);
 
-    Vector3 get_error_vector(Vector3 location);
+    void get_error_vector(Vector3 location);
 
     // Basic variables
     Vector3 GoalPosition;

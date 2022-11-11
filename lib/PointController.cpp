@@ -59,21 +59,22 @@ void PointController::set_const(bool carconst, BasicConst basicconst){
 void PointController::check_get_goal(Vector3 location_vector){
 
     // Calculating error vector and goal sin, cos
-    this->ErrorVector = this->get_error_vector(location_vector);
+    this->get_error_vector(location_vector);
 
-    if(this->ErrorVector.theta > PI) this->ErrorVector.theta -= 2 * PI;
-    else if(this->ErrorVector.theta < -PI) this->ErrorVector.theta += 2 * PI;
-
+    // FSM part
     this->get_current_state(location_vector);
 
     if(abs(this->ErrorVector) >= this->CarErrorLinear)
         this->getGoal = false;
     else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
-    else this->getGoal = true;
+    else
+        this->getGoal = true;
 }
 
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
+
+    geometry_msgs::Twist cmd_vel;
 
     // Calculate the offset
     this->offset.x = this->offset_const_xa * location_vector.x + this->offset_const_xb;
@@ -82,10 +83,10 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     ROS_DEBUG_STREAM("OFFSET : " << this->offset.x << " " << this->offset.y << " " << this->offset.theta);
 
     // Calculating error vector and goal sin, cos
-    this->ErrorVector = this->get_error_vector(location_vector);
+    this->get_error_vector(location_vector);
 
-    if(this->ErrorVector.theta > PI) this->ErrorVector.theta -= 2 * PI;
-    else if(this->ErrorVector.theta < -PI) this->ErrorVector.theta += 2 * PI;
+    // FSM part
+    this->get_current_state(location_vector);
 
     double Gcos, Gsin;
     if(abs(this->ErrorVector) == 0){
@@ -94,36 +95,47 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     Gcos = this->ErrorVector.x / abs(this->ErrorVector);
     Gsin = this->ErrorVector.y / abs(this->ErrorVector);
 
-    geometry_msgs::Twist cmd_vel;
-
-    this->get_current_state(location_vector);
-
-    double prev_vel = sqrt(pow(velocity_vector.x, 2) + pow(velocity_vector.y, 2));
-    if(this->CarState_linear == ACCEL)
-        this->CarLinear_vel = prev_vel + (this->CarAccel * time_diff);
-    else if(this->CarState_linear == SLOWDOWN)
-        this->CarLinear_vel = prev_vel - (this->CarAccel * time_diff);
-    else if(this->CarState_linear == PCONTROL)
-        this->CarLinear_vel = abs(this->ErrorVector) * this->P_gain;
-    else /* STOP state */
-        this->CarLinear_vel = 0;
+    double prev_vel = abs(velocity_vector);
+    switch(this->CarState_linear){
+        case ACCEL:
+            this->CarLinear_vel = prev_vel + (this->CarAccel * time_diff);
+            break;
+        case SLOWDOWN:
+            this->CarLinear_vel = prev_vel - (this->CarAccel * time_diff);
+            break;
+        case PCONTROL:
+            this->CarLinear_vel = abs(this->ErrorVector) * this->P_gain;
+            break;
+        case STOP:
+            this->CarLinear_vel = 0;
+            break;
+        default:
+            this->CarLinear_vel = 0;
+            break;
+    }
 
     if(this->CarLinear_vel > this->CarSpeed_MAX)
         this->CarLinear_vel = this->CarSpeed_MAX;
 
-    cmd_vel.linear.x = this->CarLinear_vel * Gcos;
-    cmd_vel.linear.y = this->CarLinear_vel * Gsin;
-
     // Get absolute angular velocity
     double prev_omega = abs(velocity_vector.theta);
-    if(this->CarState_angular == ACCEL)
-        this->CarAngular_vel = prev_omega + (this->CarAlpha * time_diff);
-    else if(this->CarState_angular == SLOWDOWN)
-        this->CarAngular_vel = prev_omega - (this->CarAlpha * time_diff);
-    else if(this->CarState_angular == PCONTROL)
-        this->CarAngular_vel = abs(this->ErrorVector.theta) * this->P_gain;
-    else /* STOP state */
-        this->CarAngular_vel = 0;
+    switch(this->CarState_angular){
+        case ACCEL:
+            this->CarAngular_vel = prev_omega + (this->CarAlpha * time_diff);
+            break;
+        case SLOWDOWN:
+            this->CarAngular_vel = prev_omega - (this->CarAlpha * time_diff);
+            break;
+        case PCONTROL:
+            this->CarAngular_vel = abs(this->ErrorVector.theta) * this->P_gain;
+            break;
+        case STOP:
+            this->CarAngular_vel = 0;
+            break;
+        default:
+            this->CarAngular_vel = 0;
+            break;
+    }
 
     if(this->CarAngular_vel > this->CarOmega_MAX)
         this->CarAngular_vel = this->CarOmega_MAX;
@@ -141,6 +153,8 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
             this->orientation_dir = CCW;
     }
 
+    cmd_vel.linear.x = this->CarLinear_vel * Gcos;
+    cmd_vel.linear.y = this->CarLinear_vel * Gsin;
     cmd_vel.angular.z = this->CarAngular_vel * this->orientation_dir;
 
     // ROS_INFO("State : %d, ang_bp : %lf, ang_err : %lf\n", this->CarState_angular,
@@ -228,7 +242,7 @@ void PointController::get_pcontrol_point(Vector3 location){
     this->p_angular = abs(this->CarAngular_vel) * this->P_gain;
 }
 
-Vector3 PointController::get_error_vector(Vector3 location){
+void PointController::get_error_vector(Vector3 location){
 
     // Operator overloading 
     // Minus to get error vector
@@ -238,9 +252,13 @@ Vector3 PointController::get_error_vector(Vector3 location){
     double sintheta = std::sin(-location.theta);
     double costheta = std::cos(-location.theta);
 
-    return Vector3(error_vector.x * costheta - error_vector.y * sintheta,
-                   error_vector.x * sintheta + error_vector.y * costheta,
-                   error_vector.theta);
+    // Bound the region of error vector
+    if(error_vector.theta > PI) error_vector.theta -= 2 * PI;
+    else if(error_vector.theta < -PI) error_vector.theta += 2 * PI;
+
+    this->ErrorVector = Vector3(error_vector.x * costheta - error_vector.y * sintheta,
+                                error_vector.x * sintheta + error_vector.y * costheta,
+                                error_vector.theta);
 }
 
 // --- PointController end ---
