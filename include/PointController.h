@@ -65,7 +65,7 @@ typedef struct BasicConst{
  */
 class PointController{
 public:
- // Constructors
+    // Constructors
     PointController(){}
     PointController(Vector3 goal): GoalPosition(goal){
     }
@@ -93,11 +93,11 @@ public:
     geometry_msgs::Twist get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff);
 
 private:
- /**
-  * @brief
-  * Motion state Definition.
-  * State information.
-  */
+    /**
+     * @brief
+     * Motion state Definition.
+     * State information.
+     */
     typedef enum{
         STOP = 0,
         ACCEL = 1,
