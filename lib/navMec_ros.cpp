@@ -6,12 +6,29 @@
 // --- Implement callback functions ---
 /* Server Callback function */
 bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& res){
-    if(req.start == true){
+    if(req.mode == 'b'){
         trigger = true;
         res.get_request = true;
 
         /* Set next point */
+        pointControl_mode = 'b';
         pointControl.set_vgoal(Vector3(req.next.x, req.next.y, req.next.z));
+    }
+    else if(req.mode == 't'){
+        trigger = true;
+        res.get_request = true;
+
+        /* Set next point */
+        pointControl_mode = 't';
+        pointControl.set_vgoal(Vector3(req.next.x, req.next.y, req.next.z));
+    }
+    else if(req.mode == 'c'){
+        trigger = true;
+        res.get_request = true;
+        timeout = 1.0;
+
+        /* Set next point */
+        pointControl_mode = 'c';
     }
     else{
         trigger = false;
@@ -29,7 +46,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
     if(!debug_mode /* DEBUGMODE */ && !trigger){
         // Haven't trigger the navigation
-        // Don't move the chasis ---> give 0 speed ---> return
+        // Don't move the chases ---> give 0 speed ---> return
         navMec_pub.publish(cmd_vel);
         return;
     }
@@ -37,8 +54,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
     /**
      * @brief
-     * If trigger --> start to nagigation
-     * Problem : How to get path ?
+     * If trigger --> start to navigation
      */
     static double time_before = 0;
     static double time_after = 0;
@@ -57,33 +73,62 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
     Vector3 location(msg->linear.x, msg->linear.y, msg->angular.z);
     Vector3 velocity(msg->angular.x, msg->angular.y, msg->linear.z);
 
-    /* Check get goal and renew Error information */
-    pointControl.check_get_goal(location);
 
-    /* For calculate proper goal or move to next goal */
-    if(!pointControl.getGoal){
-        cmd_vel = pointControl.get_vgoal(location, velocity, time_diff);
-        navMec_pub.publish(cmd_vel);
+
+    switch(pointControl_mode){
+        case 'b': {
+                /* Check get goal and renew Error information */
+                pointControl.check_get_goal(location);
+
+                /* For calculate proper goal or move to next goal */
+                if(!pointControl.getGoal){
+                    cmd_vel = pointControl.get_vgoal(location, velocity, time_diff);
+                    navMec_pub.publish(cmd_vel);
+                }
+                else if(debug_mode /* DEBUGMODE */ && count < maxCount){
+                    std::cout << "Got goal : " << count << '\n';
+                    pointControl.set_vgoal(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
+                    count++;
+                    navMec_pub.publish(cmd_vel);
+                }
+                else navMec_pub.publish(cmd_vel);
+
+
+                /* If we got the goal --> send success info */
+                if(!debug_mode /* DEBUGMODE */ && pointControl.getGoal /* if we get the goal */){
+                    trigger = false;
+                    nav_mec::navMec_fsrv res_srv;
+                    res_srv.request.finished = true;
+                    navMec_cli.call(res_srv);
+                    // Ignore the response
+
+                    time_before = time_after = 0;
+                }
+            } break;
+        case 'c': {
+                timeout -= time_diff;
+
+                cmd_vel.linear.x = 0.;
+                cmd_vel.linear.y = -0.30;
+                cmd_vel.angular.z = 0;
+
+                navMec_pub.publish(cmd_vel);
+
+                /* If we got the goal --> send success info */
+                if(!debug_mode /* DEBUGMODE */ && timeout < 0 /* if we get the goal */){
+                    trigger = false;
+                    nav_mec::navMec_fsrv res_srv;
+                    res_srv.request.finished = true;
+                    navMec_cli.call(res_srv);
+                    // Ignore the response
+
+                    time_before = time_after = 0;
+                }
+            } break;
+        default: break;
     }
-    else if(debug_mode /* DEBUGMODE */ && count < maxCount){
-        std::cout << "Got goal : " << count << '\n';
-        pointControl.set_vgoal(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
-        count++;
-        navMec_pub.publish(cmd_vel);
-    }
-    else navMec_pub.publish(cmd_vel);
 
-
-    /* If we got the goal --> send success info */
-    if(!debug_mode /* DEBUGMODE */ && /* if we get the goal */ pointControl.getGoal){
-        trigger = false;
-        nav_mec::navMec_fsrv res_srv;
-        res_srv.request.finished = true;
-        navMec_cli.call(res_srv);
-        // Ignore the response
-
-        time_before = time_after = 0;
-    }
+    ROS_DEBUG_STREAM("Current mode : " << pointControl_mode);
 }
 
 void subCBPP(const geometry_msgs::Twist::ConstPtr& msg){

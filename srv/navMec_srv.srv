@@ -1,4 +1,4 @@
-bool start
+char mode
 geometry_msgs/Point next
 ---
 bool get_request

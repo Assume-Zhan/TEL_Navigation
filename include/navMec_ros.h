@@ -20,9 +20,11 @@ void subCB(const geometry_msgs::Twist::ConstPtr&);
 void subCBPP(const geometry_msgs::Twist::ConstPtr&);
 
 // --- vars ---
+char pointControl_mode = 'b';
 bool trigger = false;
 PointController pointControl;
 PurePursuit purepursuit;
+double timeout = 1.0;
 
 // DEBUGMODE : debug mode variable
 bool debug_mode = false;
