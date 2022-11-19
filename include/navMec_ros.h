@@ -24,12 +24,14 @@ char pointControl_mode = 'b';
 bool trigger = false;
 PointController pointControl;
 PurePursuit purepursuit;
-double timeout = 1.0;
+double timeoutReload = 0;
 
 // DEBUGMODE : debug mode variable
 bool debug_mode = false;
 bool carconst = true;
 BasicConst basicconst;
+double timeout = 1.0;
+double calibMode_linear_y = 0.1;
 
 // --- Need to be removed --- S
 class vector3{

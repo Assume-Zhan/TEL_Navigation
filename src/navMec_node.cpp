@@ -32,6 +32,15 @@ int main(int argc, char** argv){
     ros::param::get("~bpAngular", basicconst.BP_ANGULAR_CONST);
     ros::param::get("~pcontrolconst", basicconst.PCONTROL_CONST);
 
+    ros::param::get("~carAccel_basicMode", basicconst.CarAccel_basicMode);
+    ros::param::get("~carAccel_turboMode", basicconst.CarAccel_basicMode);
+    ros::param::get("~carSpeedMax_basicMode", basicconst.CarSpeed_MAX_basicMode);
+    ros::param::get("~carSpeedMax_turboMode", basicconst.CarSpeed_MAX_turboMode);
+
+    ros::param::get("~calibMode_linear_y", calibMode_linear_y);
+    ros::param::get("~calibMode_timeout", timeout);
+    timeoutReload = timeout;
+
     // DEBUGMODE : construct vector
     if(debug_mode) constructVectors();
     pointControl.set_const(carconst, basicconst);

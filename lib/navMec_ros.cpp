@@ -12,6 +12,7 @@ bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& 
 
         /* Set next point */
         pointControl_mode = 'b';
+        pointControl.modeSettings(req.mode);
         pointControl.set_vgoal(Vector3(req.next.x, req.next.y, req.next.z));
     }
     else if(req.mode == 't'){
@@ -20,12 +21,13 @@ bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& 
 
         /* Set next point */
         pointControl_mode = 't';
+        pointControl.modeSettings(req.mode);
         pointControl.set_vgoal(Vector3(req.next.x, req.next.y, req.next.z));
     }
     else if(req.mode == 'c'){
         trigger = true;
         res.get_request = true;
-        timeout = 1.0;
+        timeoutReload = timeout;
 
         /* Set next point */
         pointControl_mode = 'c';
@@ -76,6 +78,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
 
 
     switch(pointControl_mode){
+        case 't':
         case 'b': {
                 /* Check get goal and renew Error information */
                 pointControl.check_get_goal(location);
@@ -106,16 +109,16 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
                 }
             } break;
         case 'c': {
-                timeout -= time_diff;
+                timeoutReload -= time_diff;
 
                 cmd_vel.linear.x = 0.;
-                cmd_vel.linear.y = -0.30;
+                cmd_vel.linear.y = -calibMode_linear_y;
                 cmd_vel.angular.z = 0;
 
                 navMec_pub.publish(cmd_vel);
 
                 /* If we got the goal --> send success info */
-                if(!debug_mode /* DEBUGMODE */ && timeout < 0 /* if we get the goal */){
+                if(!debug_mode /* DEBUGMODE */ && timeoutReload < 0 /* if we get the goal */){
                     trigger = false;
                     nav_mec::navMec_fsrv res_srv;
                     res_srv.request.finished = true;

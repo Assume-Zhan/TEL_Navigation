@@ -25,6 +25,11 @@ void PointController::set_const(bool carconst, BasicConst basicconst){
     this->CarErrorLinear = basicconst.CarErrorLinear;
     this->CarErrorAngular = basicconst.CarErrorAngular;
 
+    this->CarAccel_basicMode = basicconst.CarAccel_basicMode;
+    this->CarAccel_turboMode = basicconst.CarAccel_turboMode;
+    this->CarSpeed_MAX_basicMode = basicconst.CarSpeed_MAX_basicMode;
+    this->CarSpeed_MAX_turboMode = basicconst.CarSpeed_MAX_turboMode;
+
     if(this->using_offset){
         this->offset_const_xa = basicconst.offset_const_xa;
         this->offset_const_xb = basicconst.offset_const_xb;
@@ -54,6 +59,20 @@ void PointController::set_const(bool carconst, BasicConst basicconst){
         this->PCONTROL_CONST = 1;
     }
 
+}
+
+void PointController::modeSettings(char mode){
+    switch(mode){
+        case 'b':
+        default:
+            this->CarAccel = this->CarAccel_basicMode;
+            this->CarSpeed_MAX = this->CarSpeed_MAX_basicMode;
+            break;
+        case 't':
+            this->CarAccel = this->CarAccel_turboMode;
+            this->CarSpeed_MAX = this->CarSpeed_MAX_turboMode;
+            break;
+    }
 }
 
 void PointController::check_get_goal(Vector3 location_vector){

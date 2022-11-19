@@ -55,6 +55,12 @@ typedef struct BasicConst{
     double offset_const_yb = 0;
     double offset_const_za = 0;
     double offset_const_zb = 0;
+
+    double CarAccel_basicMode = 0.4;
+    double CarAccel_turboMode = 2.0;
+
+    double CarSpeed_MAX_basicMode = 0.7;
+    double CarSpeed_MAX_turboMode = 2.0;
 } BasicConst;
 
 /**
@@ -80,6 +86,9 @@ public:
     // Check get the goal
     void check_get_goal(Vector3);
     bool getGoal;
+
+    // Set different mode
+    void modeSettings(char mode);
 
     /**
      * @brief Get proper velocity vector by given position and goal,
@@ -163,6 +172,13 @@ private:
     double offset_const_yb = 0;
     double offset_const_za = 0;
     double offset_const_zb = 0;
+
+    // Mode settings
+    double CarAccel_basicMode = 0.4;
+    double CarAccel_turboMode = 2.0;
+
+    double CarSpeed_MAX_basicMode = 0.7;
+    double CarSpeed_MAX_turboMode = 2.0;
 };
 
 #endif /* POINTCONTROLLER_H_ */
