@@ -66,17 +66,31 @@ void PointController::set_const(bool carconst, BasicConst basicconst){
 
 }
 
-void PointController::modeSettings(char mode){
-    switch(mode){
-        case 'b':
-        default:
-            this->CarAccel = this->CarAccel_basicMode;
-            this->CarSpeed_MAX = this->CarSpeed_MAX_basicMode;
-            break;
-        case 't':
-            this->CarAccel = this->CarAccel_turboMode;
-            this->CarSpeed_MAX = this->CarSpeed_MAX_turboMode;
-            break;
+void PointController::modeSettings(std::queue<char> mode){
+    this->ModeBuffer = mode;
+}
+
+char PointController::getMode(){
+    return this->ModeBuffer.front();
+}
+
+bool PointController::calibMode_clearBuffer(){
+    this->GoalBuffer.pop();
+    this->ModeBuffer.pop();
+
+    if(this->ModeBuffer.empty() || this->GoalBuffer.empty())
+        return true;
+    else{
+        while(this->GoalBuffer.front().theta > PI)
+            this->GoalBuffer.front().theta = this->GoalBuffer.front().theta - 2 * PI;
+        while(this->GoalBuffer.front().theta < -PI)
+            this->GoalBuffer.front().theta = this->GoalBuffer.front().theta + 2 * PI;
+
+        this->GoalPosition = this->GoalBuffer.front();
+        this->GoalChanged = true;
+        this->getGoal = false;
+
+        return false;
     }
 }
 
@@ -93,7 +107,9 @@ void PointController::check_get_goal(Vector3 location_vector){
     else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
     else{
+        ROS_DEBUG_STREAM("CURRENT_GOAL : " << this->GoalPosition.x << ", " << this->GoalPosition.y << ", " << this->GoalPosition.theta);
         this->GoalBuffer.pop();
+        this->ModeBuffer.pop();
         if(this->GoalBuffer.empty()) this->getGoal = true;
         else{
             while(this->GoalBuffer.front().theta > PI)
@@ -116,7 +132,6 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     this->offset.x = this->offset_const_xa * location_vector.x + this->offset_const_xb;
     this->offset.y = this->offset_const_ya * location_vector.y + this->offset_const_yb;
     this->offset.theta = this->offset_const_za * location_vector.theta + this->offset_const_zb;
-    ROS_DEBUG_STREAM("OFFSET : " << this->offset.x << " " << this->offset.y << " " << this->offset.theta);
 
     // Calculating error vector and goal sin, cos
     this->get_error_vector(location_vector);

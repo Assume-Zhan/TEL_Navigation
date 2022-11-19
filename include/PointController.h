@@ -89,7 +89,9 @@ public:
     bool getGoal;
 
     // Set different mode
-    void modeSettings(char mode);
+    void modeSettings(std::queue<char> mode);
+    char getMode();
+    bool calibMode_clearBuffer();
 
     /**
      * @brief Get proper velocity vector by given position and goal,
@@ -146,6 +148,7 @@ private:
     // Basic variables
     bool GoalChanged = false;
     std::queue<Vector3> GoalBuffer;
+    std::queue<char> ModeBuffer;
     Vector3 GoalPosition;
     Vector3 ErrorVector;
     Vector3 offset;
