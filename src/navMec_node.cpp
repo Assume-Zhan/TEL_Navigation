@@ -33,7 +33,7 @@ int main(int argc, char** argv){
     ros::param::get("~pcontrolconst", basicconst.PCONTROL_CONST);
 
     ros::param::get("~carAccel_basicMode", basicconst.CarAccel_basicMode);
-    ros::param::get("~carAccel_turboMode", basicconst.CarAccel_basicMode);
+    ros::param::get("~carAccel_turboMode", basicconst.CarAccel_turboMode);
     ros::param::get("~carSpeedMax_basicMode", basicconst.CarSpeed_MAX_basicMode);
     ros::param::get("~carSpeedMax_turboMode", basicconst.CarSpeed_MAX_turboMode);
 

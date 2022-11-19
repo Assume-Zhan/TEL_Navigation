@@ -50,6 +50,14 @@
 
         <!-- Constant for SLOWDOWN to PCONTROL -->
         <param name="pcontrolconst" type="double" value="0.75"/>
+
+        <param name="carAccel_basicMode" type="double" value="0.4"/>
+        <param name="carAccel_turboMode" type="double" value="2.0"/>
+        <param name="carSpeedMax_basicMode" type="double" value="0.7"/>
+        <param name="carSpeedMax_turboMode" type="double" value="2.0"/>
+
+        <param name="calibMode_linear_y" type="double" value="0.1"/>
+        <param name="calibMode_timeout" type="double" value="1.0"/>
     </node>
 
     <!-- Encoder simulation -->

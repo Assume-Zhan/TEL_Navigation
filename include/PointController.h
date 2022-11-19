@@ -2,6 +2,7 @@
 #define POINTCONTROLLER_H_
 
 #include <string>
+#include <queue>
 
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
@@ -81,7 +82,7 @@ public:
     void set_const(bool, BasicConst);
 
     // Get goal
-    void set_vgoal(Vector3);
+    void set_vgoal(std::queue<Vector3>);
 
     // Check get the goal
     void check_get_goal(Vector3);
@@ -143,6 +144,8 @@ private:
     void get_error_vector(Vector3 location);
 
     // Basic variables
+    bool GoalChanged = false;
+    std::queue<Vector3> GoalBuffer;
     Vector3 GoalPosition;
     Vector3 ErrorVector;
     Vector3 offset;

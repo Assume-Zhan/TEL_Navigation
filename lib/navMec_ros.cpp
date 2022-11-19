@@ -13,7 +13,14 @@ bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& 
         /* Set next point */
         pointControl_mode = 'b';
         pointControl.modeSettings(req.mode);
-        pointControl.set_vgoal(Vector3(req.next.x, req.next.y, req.next.z));
+
+        std::queue<Vector3> goals;
+
+        for(auto goal : req.next){
+            goals.push(Vector3(goal.x, goal.y, goal.z));
+        }
+
+        pointControl.set_vgoal(goals);
     }
     else if(req.mode == 't'){
         trigger = true;
@@ -22,7 +29,14 @@ bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& 
         /* Set next point */
         pointControl_mode = 't';
         pointControl.modeSettings(req.mode);
-        pointControl.set_vgoal(Vector3(req.next.x, req.next.y, req.next.z));
+
+        std::queue<Vector3> goals;
+
+        for(auto goal : req.next){
+            goals.push(Vector3(goal.x, goal.y, goal.z));
+        }
+
+        pointControl.set_vgoal(goals);
     }
     else if(req.mode == 'c'){
         trigger = true;
@@ -90,7 +104,9 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
                 }
                 else if(debug_mode /* DEBUGMODE */ && count < maxCount){
                     std::cout << "Got goal : " << count << '\n';
-                    pointControl.set_vgoal(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
+                    std::queue<Vector3> g;
+                    g.push(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
+                    pointControl.set_vgoal(g);
                     count++;
                     navMec_pub.publish(cmd_vel);
                 }

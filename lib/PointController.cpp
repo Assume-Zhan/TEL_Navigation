@@ -2,15 +2,20 @@
 
 // --- Point Controller start---
 
-void PointController::set_vgoal(Vector3 goal){
+void PointController::set_vgoal(std::queue<Vector3> goalBuffer){
 
     // Bind the theta goal
-    while(goal.theta > PI)
-        goal.theta = goal.theta - 2 * PI;
-    while(goal.theta < -PI)
-        goal.theta = goal.theta + 2 * PI;
 
-    this->GoalPosition = goal;
+
+    this->GoalBuffer = goalBuffer;
+
+    while(this->GoalBuffer.front().theta > PI)
+        this->GoalBuffer.front().theta = this->GoalBuffer.front().theta - 2 * PI;
+    while(this->GoalBuffer.front().theta < -PI)
+        this->GoalBuffer.front().theta = this->GoalBuffer.front().theta + 2 * PI;
+
+    this->GoalPosition = this->GoalBuffer.front();
+    this->GoalChanged = true;
 
     return;
 }
@@ -87,8 +92,20 @@ void PointController::check_get_goal(Vector3 location_vector){
         this->getGoal = false;
     else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
-    else
-        this->getGoal = true;
+    else{
+        this->GoalBuffer.pop();
+        if(this->GoalBuffer.empty()) this->getGoal = true;
+        else{
+            while(this->GoalBuffer.front().theta > PI)
+                this->GoalBuffer.front().theta = this->GoalBuffer.front().theta - 2 * PI;
+            while(this->GoalBuffer.front().theta < -PI)
+                this->GoalBuffer.front().theta = this->GoalBuffer.front().theta + 2 * PI;
+
+            this->GoalPosition = this->GoalBuffer.front();
+            this->GoalChanged = true;
+            this->getGoal = false;
+        }
+    }
 }
 
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
@@ -214,9 +231,12 @@ void PointController::get_current_state(Vector3 location){
                 // From the SLOWDOWN state to the PCONTROL state
                 if(abs(this->p_control_point - linear_error * this->P_gain) < this->CarAccel * this->PCONTROL_CONST)
                     this->CarState_linear = PCONTROL;
+
+                if(this->GoalChanged) this->CarState_linear = STOP;
                 break;
             case PCONTROL:
                 // TODO : we need more thing to take care of pure pursuit
+                if(this->GoalChanged) this->CarState_linear = STOP;
                 break;
         }
     }
@@ -239,12 +259,16 @@ void PointController::get_current_state(Vector3 location){
                 // From the SLOWDOWN state to the PCONTROL state
                 if(abs(this->p_angular - abs(this->ErrorVector.theta) * this->P_gain) < this->CarAlpha * this->PCONTROL_CONST)
                     this->CarState_angular = PCONTROL;
+                if(this->GoalChanged) this->CarState_angular = STOP;
                 break;
             case PCONTROL:
                 // TODO : we need more thing to take care of pure pursuit
+                if(this->GoalChanged) this->CarState_angular = STOP;
                 break;
         }
     }
+
+    this->GoalChanged = false;
 }
 
 void PointController::get_breakPoint(Vector3 location){

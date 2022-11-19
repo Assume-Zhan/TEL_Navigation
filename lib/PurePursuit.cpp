@@ -34,7 +34,9 @@ geometry_msgs::Twist PurePursuit::get_vgoal(Vector3 location, Vector3 velocity, 
 
     geometry_msgs::Twist cmd_vel;
     Vector3 nextPoint = findNextPoint(location);
-    this->pointcontroller->set_vgoal(nextPoint);
+    std::queue<Vector3> nextPath;
+    nextPath.push(nextPoint);
+    this->pointcontroller->set_vgoal(nextPath);
     this->pointcontroller->check_get_goal(location);
     cmd_vel = this->pointcontroller->get_vgoal(location, velocity, time_diff);
 
