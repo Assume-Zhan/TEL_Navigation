@@ -105,6 +105,8 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
             break;
         case PCONTROL:
             this->CarLinear_vel = abs(this->ErrorVector) * this->P_gain;
+            if(this->CarLinear_vel > prev_vel)
+                this->CarLinear_vel = prev_vel;
             break;
         case STOP:
             this->CarLinear_vel = 0;

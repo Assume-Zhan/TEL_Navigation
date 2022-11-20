@@ -109,7 +109,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
                 timeout -= time_diff;
 
                 cmd_vel.linear.x = 0.;
-                cmd_vel.linear.y = -0.30;
+                cmd_vel.linear.y = -0.1;
                 cmd_vel.angular.z = 0;
 
                 navMec_pub.publish(cmd_vel);
