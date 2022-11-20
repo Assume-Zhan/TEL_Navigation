@@ -2,6 +2,7 @@
 #define POINTCONTROLLER_H_
 
 #include <string>
+#include <queue>
 
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
@@ -55,6 +56,12 @@ typedef struct BasicConst{
     double offset_const_yb = 0;
     double offset_const_za = 0;
     double offset_const_zb = 0;
+
+    double CarAccel_basicMode = 0.4;
+    double CarAccel_turboMode = 2.0;
+
+    double CarSpeed_MAX_basicMode = 0.7;
+    double CarSpeed_MAX_turboMode = 2.0;
 } BasicConst;
 
 /**
@@ -75,11 +82,16 @@ public:
     void set_const(bool, BasicConst);
 
     // Get goal
-    void set_vgoal(Vector3);
+    void set_vgoal(std::queue<Vector3>);
 
     // Check get the goal
     void check_get_goal(Vector3);
     bool getGoal;
+
+    // Set different mode
+    void modeSettings(std::queue<char> mode);
+    char getMode();
+    bool calibMode_clearBuffer();
 
     /**
      * @brief Get proper velocity vector by given position and goal,
@@ -134,6 +146,9 @@ private:
     void get_error_vector(Vector3 location);
 
     // Basic variables
+    bool GoalChanged = false;
+    std::queue<Vector3> GoalBuffer;
+    std::queue<char> ModeBuffer;
     Vector3 GoalPosition;
     Vector3 ErrorVector;
     Vector3 offset;
@@ -163,6 +178,13 @@ private:
     double offset_const_yb = 0;
     double offset_const_za = 0;
     double offset_const_zb = 0;
+
+    // Mode settings
+    double CarAccel_basicMode = 0.4;
+    double CarAccel_turboMode = 2.0;
+
+    double CarSpeed_MAX_basicMode = 0.7;
+    double CarSpeed_MAX_turboMode = 2.0;
 };
 
 #endif /* POINTCONTROLLER_H_ */
