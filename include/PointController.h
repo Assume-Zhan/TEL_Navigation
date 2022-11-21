@@ -86,6 +86,7 @@ public:
 
     // Check get the goal
     void check_get_goal(Vector3);
+    Vector3 get_V_goal();
     bool getGoal;
 
     // Set different mode

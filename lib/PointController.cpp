@@ -20,6 +20,11 @@ void PointController::set_vgoal(std::queue<Vector3> goalBuffer){
     return;
 }
 
+
+Vector3 PointController::get_V_goal(){
+    return this->GoalPosition;
+}
+
 void PointController::set_const(bool carconst, BasicConst basicconst){
 
     this->P_gain = basicconst.P_gain;
@@ -181,6 +186,8 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
             break;
         case PCONTROL:
             this->CarAngular_vel = abs(this->ErrorVector.theta) * this->P_gain;
+            if(this->CarAngular_vel > prev_omega)
+                this->CarAngular_vel = prev_omega;
             break;
         case STOP:
             this->CarAngular_vel = 0;

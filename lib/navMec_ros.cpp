@@ -114,6 +114,14 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
                 /* If we got the goal --> send success info */
                 if(!debug_mode /* DEBUGMODE */ && timeoutReload < 0 /* if we get the goal */){
                     timeoutReload = timeout;
+
+                    mecanumLoc::loc_reset srv;
+                    Vector3 x_g = pointControl.get_V_goal();
+                    srv.request.x = x_g.x;
+                    srv.request.y = x_g.y;
+                    srv.request.z = x_g.theta;
+                    
+                    locReset_cli.call(srv);
                     if(pointControl.calibMode_clearBuffer()){
                         trigger = false;
                         nav_mec::navMec_fsrv res_srv;

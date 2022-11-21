@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <nav_mec/navMec_srv.h>
 #include <nav_mec/navMec_fsrv.h>
+#include <mecanumLoc/loc_reset.h>
 #include "geometry_msgs/Twist.h"
 #include "PointController.h"
 #include "PurePursuit.h"
@@ -11,6 +12,7 @@
 // Define ""server, client, publisher, subscriber""
 ros::ServiceServer navMec_ser;
 ros::ServiceClient navMec_cli;
+ros::ServiceClient locReset_cli;
 ros::Publisher navMec_pub;
 ros::Subscriber navMec_sub;
 
