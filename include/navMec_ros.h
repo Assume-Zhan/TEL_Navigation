@@ -4,7 +4,7 @@
 #include <ros/ros.h>
 #include <nav_mec/navMec_srv.h>
 #include <nav_mec/navMec_fsrv.h>
-#include <mecanumLoc/loc_reset.h>
+#include <localization/Locate.h>
 #include "geometry_msgs/Twist.h"
 #include "PointController.h"
 #include "PurePursuit.h"
@@ -12,14 +12,13 @@
 // Define ""server, client, publisher, subscriber""
 ros::ServiceServer navMec_ser;
 ros::ServiceClient navMec_cli;
-ros::ServiceClient locReset_cli;
 ros::Publisher navMec_pub;
 ros::Subscriber navMec_sub;
 
 // Callback function for subscriber and server
 bool serverCB(nav_mec::navMec_srv::Request&, nav_mec::navMec_srv::Response&);
-void subCB(const geometry_msgs::Twist::ConstPtr&);
-void subCBPP(const geometry_msgs::Twist::ConstPtr&);
+void subCB(const localization::Locate::ConstPtr msg);
+void subCBPP(const localization::Locate::ConstPtr msg);
 
 // --- vars ---
 bool trigger = false;
