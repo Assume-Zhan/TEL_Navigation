@@ -33,7 +33,7 @@ bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& 
 }
 
 /* Subscriber Callback function */
-void subCB(const geometry_msgs::Twist::ConstPtr& msg){
+void subCB(const localization::Locate::ConstPtr msg){
     // Subscribe location info from location node
 
     geometry_msgs::Twist cmd_vel;
@@ -45,11 +45,6 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
         return;
     }
 
-
-    /**
-     * @brief
-     * If trigger --> start to navigation
-     */
     static double time_before = 0;
     static double time_after = 0;
     if(!time_before){
@@ -64,8 +59,8 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
     time_before = ros::Time::now().toSec();
 
     /* Change geometry msgs to Vector3 */
-    Vector3 location(msg->linear.x, msg->linear.y, msg->angular.z);
-    Vector3 velocity(msg->angular.x, msg->angular.y, msg->linear.z);
+    Vector3 location(msg->PositionX, msg->PositionY, msg->PositionOmega);
+    Vector3 velocity(msg->VelocityX, msg->VelocityY, msg->VelocityOmega);
 
 
 
@@ -82,9 +77,9 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
                 }
                 else if(debug_mode /* DEBUGMODE */ && count < maxCount){
                     std::cout << "Got goal : " << count << '\n';
-                    std::queue<Vector3> g;
-                    g.push(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
-                    pointControl.set_vgoal(g);
+                    std::queue<Vector3> next_goal;
+                    next_goal.push(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
+                    pointControl.set_vgoal(next_goal);
                     count++;
                     navMec_pub.publish(cmd_vel);
                 }
@@ -115,13 +110,6 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
                 if(!debug_mode /* DEBUGMODE */ && timeoutReload < 0 /* if we get the goal */){
                     timeoutReload = timeout;
 
-                    mecanumLoc::loc_reset srv;
-                    Vector3 x_g = pointControl.get_V_goal();
-                    srv.request.x = x_g.x;
-                    srv.request.y = x_g.y;
-                    srv.request.z = x_g.theta;
-                    
-                    locReset_cli.call(srv);
                     if(pointControl.calibMode_clearBuffer()){
                         trigger = false;
                         nav_mec::navMec_fsrv res_srv;
@@ -138,7 +126,7 @@ void subCB(const geometry_msgs::Twist::ConstPtr& msg){
     // ROS_DEBUG_STREAM("Current mode : " << pointControl.getMode());
 }
 
-void subCBPP(const geometry_msgs::Twist::ConstPtr& msg){
+void subCBPP(const localization::Locate::ConstPtr msg){
     geometry_msgs::Twist cmd_vel;
     static double time_before = 0;
     static double time_after = 0;
@@ -154,8 +142,8 @@ void subCBPP(const geometry_msgs::Twist::ConstPtr& msg){
     time_before = ros::Time::now().toSec();
 
     /* Change geometry msgs to Vector3 */
-    Vector3 location(msg->linear.x, msg->linear.y, msg->angular.z);
-    Vector3 velocity(msg->angular.x, msg->angular.y, msg->linear.z);
+    Vector3 location(msg->PositionX, msg->PositionY, msg->PositionOmega);
+    Vector3 velocity(msg->VelocityX, msg->VelocityY, msg->VelocityOmega);
 
     cmd_vel = purepursuit.get_vgoal(location, velocity, time_diff);
 

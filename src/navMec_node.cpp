@@ -58,10 +58,9 @@ int main(int argc, char** argv){
     if(!debug_mode){
         navMec_ser = navMec_nh.advertiseService("navMec_trigger", serverCB);
         navMec_cli = navMec_nh.serviceClient<nav_mec::navMec_fsrv>("navMec_resp");
-        locReset_cli = navMec_nh.serviceClient<mecanumLoc::loc_reset>("loc_reset");
     }
     navMec_pub = navMec_nh.advertise<geometry_msgs::Twist>("/push_vel", 1);
-    navMec_sub = navMec_nh.subscribe("/location_cha", 1, subCB);
+    navMec_sub = navMec_nh.subscribe("/Localization", 1, subCB);
 
     // Go to callback functions
     ros::spin();
