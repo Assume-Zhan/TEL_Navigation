@@ -56,8 +56,8 @@ int main(int argc, char** argv){
     // Init our server/client, pub/sub
     // DEBUGMODE : Setting server and client
     if(!debug_mode){
-        navMec_ser = navMec_nh.advertiseService("navMec_trigger", serverCB);
-        navMec_cli = navMec_nh.serviceClient<nav_mec::navMec_fsrv>("navMec_resp");
+        navMec_ser = navMec_nh.advertiseService("/navMec_trigger", serverCB);
+        navMec_cli = navMec_nh.serviceClient<nav_mec::navMec_fsrv>("/navMec_resp");
     }
     navMec_pub = navMec_nh.advertise<geometry_msgs::Twist>("/push_vel", 1);
     navMec_sub = navMec_nh.subscribe("/Localization", 1, subCB);
