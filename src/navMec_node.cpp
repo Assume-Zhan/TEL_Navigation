@@ -60,7 +60,7 @@ int main(int argc, char** argv){
         navMec_cli = navMec_nh.serviceClient<nav_mec::navMec_fsrv>("navMec_resp");
     }
     navMec_pub = navMec_nh.advertise<geometry_msgs::Twist>("/push_vel", 1);
-    navMec_sub = navMec_nh.subscribe("/Localization", 1, subCB);
+    navMec_sub = navMec_nh.subscribe("/Localization", 1000, subCB);
 
     // Go to callback functions
     ros::spin();
