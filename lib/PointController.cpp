@@ -76,6 +76,15 @@ void PointController::modeSettings(std::queue<char> mode){
 }
 
 char PointController::getMode(){
+    if(this->ModeBuffer.front() == 't'){
+        this->CarAccel = this->CarAccel_turboMode;
+        this->CarSpeed_MAX = this->CarAccel_turboMode;
+    }
+    else{
+        this->CarAccel = this->CarAccel_basicMode;
+        this->CarSpeed_MAX = this->CarAccel_basicMode;
+    }
+
     return this->ModeBuffer.front();
 }
 
@@ -112,7 +121,7 @@ void PointController::check_get_goal(Vector3 location_vector){
     else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
     else{
-        ROS_DEBUG_STREAM("CURRENT_GOAL : " << this->GoalPosition.x << ", " << this->GoalPosition.y << ", " << this->GoalPosition.theta);
+        ROS_INFO_STREAM("GET_GOAL : " << this->GoalPosition.x << ", " << this->GoalPosition.y << ", " << this->GoalPosition.theta);
         this->GoalBuffer.pop();
         this->ModeBuffer.pop();
         if(this->GoalBuffer.empty()) this->getGoal = true;
@@ -132,6 +141,8 @@ void PointController::check_get_goal(Vector3 location_vector){
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
 
     geometry_msgs::Twist cmd_vel;
+    ROS_INFO_STREAM("CURRENT loc : " << location_vector.x << ", " << location_vector.y << ", " << location_vector.theta);
+    ROS_INFO_STREAM("CURRENT STATE : " << this->CarState_linear);
 
     // Calculate the offset
     this->offset.x = this->offset_const_xa * location_vector.x + this->offset_const_xb;
@@ -248,7 +259,7 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case ACCEL:
                 // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
-                if(linear_error < this->breakpoint_linear * this->BP_LINEAR_CONST)
+                if(linear_error < this->breakpoint_linear * this->BP_LINEAR_CONST && this->CarLinear_vel >= 0.15)
                     this->CarState_linear = SLOWDOWN;
                 break;
             case SLOWDOWN:

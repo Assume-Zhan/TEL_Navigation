@@ -6,7 +6,7 @@
 // --- Implement callback functions ---
 /* Server Callback function */
 bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& res){
-    if(req.next.size() > 0){
+    if(req.next.size() >= 0){
         trigger = true;
         res.get_request = true;
 
@@ -91,7 +91,7 @@ void subCB(const localization::Locate::ConstPtr msg){
                     trigger = false;
                     nav_mec::navMec_fsrv res_srv;
                     res_srv.request.finished = true;
-                    navMec_cli.call(res_srv);
+                    while(!navMec_cli.call(res_srv));
                     // Ignore the response
                     time_before = time_after = 0;
 
@@ -114,7 +114,7 @@ void subCB(const localization::Locate::ConstPtr msg){
                         trigger = false;
                         nav_mec::navMec_fsrv res_srv;
                         res_srv.request.finished = true;
-                        navMec_cli.call(res_srv);
+                        while(!navMec_cli.call(res_srv));
                         time_before = time_after = 0;
                     }
 
