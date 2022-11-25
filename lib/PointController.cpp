@@ -121,10 +121,13 @@ void PointController::check_get_goal(Vector3 location_vector){
     else if(abs(this->ErrorVector.theta) >= this->CarErrorAngular)
         this->getGoal = false;
     else{
-        ROS_INFO_STREAM("GET_GOAL : " << this->GoalPosition.x << ", " << this->GoalPosition.y << ", " << this->GoalPosition.theta);
+        // ROS_DEBUG_STREAM("CURRENT_GOAL : " << this->GoalPosition.x << ", " << this->GoalPosition.y << ", " << this->GoalPosition.theta);
         this->GoalBuffer.pop();
         this->ModeBuffer.pop();
-        if(this->GoalBuffer.empty()) this->getGoal = true;
+        if(this->GoalBuffer.empty()){
+            ROS_DEBUG_STREAM("CURRENT_GOAL : " << this->GoalPosition.x << ", " << this->GoalPosition.y << ", " << this->GoalPosition.theta);
+            this->getGoal = true;
+        }
         else{
             while(this->GoalBuffer.front().theta > PI)
                 this->GoalBuffer.front().theta = this->GoalBuffer.front().theta - 2 * PI;
