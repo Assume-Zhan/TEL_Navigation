@@ -144,7 +144,6 @@ void PointController::check_get_goal(Vector3 location_vector){
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
 
     geometry_msgs::Twist cmd_vel;
-    ROS_INFO_STREAM("CURRENT loc : " << location_vector.x << ", " << location_vector.y << ", " << location_vector.theta);
     ROS_INFO_STREAM("CURRENT STATE : " << this->CarState_angular);
 
     // Calculate the offset
@@ -216,18 +215,11 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     if(this->CarAngular_vel > this->CarOmega_MAX)
         this->CarAngular_vel = this->CarOmega_MAX;
 
-    if(fabs(this->ErrorVector.theta) <= PI){
-        if(this->ErrorVector.theta > 0)
-            this->orientation_dir = CW;
-        else
-            this->orientation_dir = CCW;
-    }
-    else{
-        if(this->ErrorVector.theta < 0)
-            this->orientation_dir = CW;
-        else
-            this->orientation_dir = CCW;
-    }
+    if(this->ErrorVector.theta >= 0)
+        this->orientation_dir = CW;
+    else
+        this->orientation_dir = CCW;
+
 
     cmd_vel.linear.x = this->CarLinear_vel * Gcos;
     cmd_vel.linear.y = this->CarLinear_vel * Gsin;
@@ -239,6 +231,8 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     // ROS_INFO("State : %d, prev : %lf, Car ang : %lf\n", this->CarState_angular, prev_omega, this->CarAngular_vel);
     // ROS_INFO("State : %d\n", this->CarState_linear);
     ROS_INFO_STREAM("ERROR THETA : " << this->ErrorVector.theta << ", DIR : " << this->orientation_dir);
+    ROS_INFO_STREAM("CAR_ANG_VEL : " << this->CarAngular_vel);
+    ROS_INFO_STREAM("PREVIOUS omega : " << prev_omega);
 
     return cmd_vel;
 }
@@ -337,8 +331,8 @@ void PointController::get_error_vector(Vector3 location){
     double costheta = std::cos(-location.theta);
 
     // Bound the region of error vector
-    if(error_vector.theta > PI) error_vector.theta -= 2 * PI;
-    else if(error_vector.theta < -PI) error_vector.theta += 2 * PI;
+    if(error_vector.theta >= PI) error_vector.theta -= 2 * PI;
+    else if(error_vector.theta <= -PI) error_vector.theta += 2 * PI;
 
     this->ErrorVector = Vector3(error_vector.x * costheta - error_vector.y * sintheta,
                                 error_vector.x * sintheta + error_vector.y * costheta,
