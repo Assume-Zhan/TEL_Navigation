@@ -97,11 +97,12 @@ void subCB(const localization::Locate::ConstPtr msg){
 
                 }
             } break;
-        case 'c': {
+        case 'c':
+        case 'i': {
                 timeoutReload -= time_diff;
 
                 cmd_vel.linear.x = 0.;
-                cmd_vel.linear.y = -calibMode_linear_y;
+                cmd_vel.linear.y = pointControl.getMode() == 'c' ? -calibMode_linear_y : calibMode_linear_y;
                 cmd_vel.angular.z = 0;
 
                 navMec_pub.publish(cmd_vel);
