@@ -144,7 +144,7 @@ void PointController::check_get_goal(Vector3 location_vector){
 geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3 velocity_vector, double time_diff){
 
     geometry_msgs::Twist cmd_vel;
-    ROS_INFO_STREAM("CURRENT STATE : " << this->CarState_angular);
+    ROS_INFO_STREAM("CURRENT STATE : " << this->CarState_linear);
 
     // Calculate the offset
     this->offset.x = this->offset_const_xa * location_vector.x + this->offset_const_xb;
@@ -259,13 +259,15 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case ACCEL:
                 // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
-                if(linear_error < this->breakpoint_linear * this->BP_LINEAR_CONST && this->CarLinear_vel >= 0.15)
+                if(linear_error < this->breakpoint_linear * this->BP_LINEAR_CONST && abs(this->CarLinear_vel) >= 0.23)
                     this->CarState_linear = SLOWDOWN;
                 break;
             case SLOWDOWN:
                 // From the SLOWDOWN state to the PCONTROL state
                 if(fabs(this->p_control_point - linear_error * this->P_gain) < this->CarAccel * this->PCONTROL_CONST)
                     this->CarState_linear = PCONTROL;
+
+                if(this->CarLinear_vel <= 0) this->CarState_linear = ACCEL;
 
                 if(this->GoalChanged) this->CarState_linear = STOP;
                 break;
@@ -287,7 +289,7 @@ void PointController::get_current_state(Vector3 location){
                 break;
             case ACCEL:
                 // From the ACCEL state to SLOWDOWN state when the error is smaller than the breakpoint
-                if(angular_error < this->breakpoint_angular * this->BP_ANGULAR_CONST)
+                if(angular_error < this->breakpoint_angular * this->BP_ANGULAR_CONST && abs(this->CarAngular_vel) >= 0.33)
                     this->CarState_angular = SLOWDOWN;
                 break;
             case SLOWDOWN:

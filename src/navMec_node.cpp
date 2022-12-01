@@ -63,5 +63,7 @@ int main(int argc, char** argv){
     navMec_sub = navMec_nh.subscribe("/Localization", 1000, subCB);
 
     // Go to callback functions
-    ros::spin();
+    while(navMec_nh.ok()){
+        ros::spinOnce();
+    }
 }
