@@ -1,30 +1,29 @@
+#include "navMec_ros.h"
+
 #include <cmath>
 #include <iostream>
 
-#include "navMec_ros.h"
-
 // --- Implement callback functions ---
 /* Server Callback function */
-bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& res){
-    if(req.next.size() >= 0){
+bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& res) {
+    if (req.next.size() >= 0) {
         trigger = true;
         res.get_request = true;
 
         /* Set next point */
         std::queue<char> modes;
-        for(auto eachMode : req.mode){
+        for (auto eachMode : req.mode) {
             modes.push(eachMode);
         }
         pointControl.modeSettings(modes);
 
         std::queue<Vector3> goals;
-        for(auto goal : req.next){
+        for (auto goal : req.next) {
             goals.push(Vector3(goal.x, goal.y, goal.z));
         }
 
         pointControl.set_vgoal(goals);
-    }
-    else{
+    } else {
         trigger = false;
         res.get_request = false;
     }
@@ -33,21 +32,25 @@ bool serverCB(nav_mec::navMec_srv::Request& req, nav_mec::navMec_srv::Response& 
 }
 
 /* Subscriber Callback function */
-void subCB(const localization::Locate::ConstPtr msg){
+void subCB(const localization::Locate::ConstPtr msg) {
     // Subscribe location info from location node
 
     geometry_msgs::Twist cmd_vel;
 
-    if(!debug_mode /* DEBUGMODE */ && !trigger){
+    cmd_vel.linear.x = 0;
+    cmd_vel.linear.y = 0;
+    cmd_vel.angular.z = 0;
+
+    if (!debug_mode /* DEBUGMODE */ && !trigger) {
         // Haven't trigger the navigation
         // Don't move the chases ---> give 0 speed ---> return
         navMec_pub.publish(cmd_vel);
         return;
     }
 
-    static double time_before = 0;
-    static double time_after = 0;
-    if(!time_before){
+    static double time_before = 0.;
+    static double time_after = 0.;
+    if (!time_before) {
         time_before = ros::Time::now().toSec();
         navMec_pub.publish(cmd_vel);
         return;
@@ -56,83 +59,85 @@ void subCB(const localization::Locate::ConstPtr msg){
     /* Get time different (Here just for calculate proper delta velocity) */
     time_after = ros::Time::now().toSec();
     double time_diff = time_after - time_before;
-    time_before = ros::Time::now().toSec();
+    time_before = time_after;
 
     /* Change geometry msgs to Vector3 */
     Vector3 location(msg->PositionX, msg->PositionY, msg->PositionOmega);
     Vector3 velocity(msg->VelocityX, msg->VelocityY, msg->VelocityOmega);
 
-
-
-    switch(pointControl.getMode()){
+    switch (pointControl.getMode()) {
         case 't':
         case 'b': {
-                /* Check get goal and renew Error information */
-                pointControl.check_get_goal(location);
+            /* Check get goal and renew Error information */
+            pointControl.check_get_goal(location);
 
-                /* For calculate proper goal or move to next goal */
-                if(!pointControl.getGoal){
-                    cmd_vel = pointControl.get_vgoal(location, velocity, time_diff);
-                    navMec_pub.publish(cmd_vel);
-                }
-                else if(debug_mode /* DEBUGMODE */ && count < maxCount){
-                    std::cout << "Got goal : " << count << '\n';
-                    std::queue<Vector3> next_goal;
-                    next_goal.push(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
-                    pointControl.set_vgoal(next_goal);
-                    count++;
-                    navMec_pub.publish(cmd_vel);
-                }
-                else navMec_pub.publish(cmd_vel);
+            /* For calculate proper goal or move to next goal */
+            if (!pointControl.getGoal) {
+                cmd_vel = pointControl.get_vgoal(location, velocity, time_diff);
+                navMec_pub.publish(cmd_vel);
+            } else if (debug_mode /* DEBUGMODE */ && count < maxCount) {
+                std::cout << "Got goal : " << count << '\n';
+                std::queue<Vector3> next_goal;
+                next_goal.push(Vector3(vectors[count].x, vectors[count].y, vectors[count].theta));
+                pointControl.set_vgoal(next_goal);
+                count++;
+                navMec_pub.publish(cmd_vel);
+            } else
+                navMec_pub.publish(cmd_vel);
 
+            /* If we got the goal --> send success info */
+            if (!debug_mode /* DEBUGMODE */ && pointControl.getGoal /* if we get the goal */) {
+                trigger = false;
+                nav_mec::navMec_fsrv res_srv;
+                res_srv.request.finished = true;
+                while (!navMec_cli.call(res_srv))
+                    ;
+                // Ignore the response
+                time_before = time_after = 0.;
+            }
+        } break;
+        case 'c':
+        case 'i': {
+            timeoutReload -= time_diff;
 
-                /* If we got the goal --> send success info */
-                if(!debug_mode /* DEBUGMODE */ && pointControl.getGoal /* if we get the goal */){
+            cmd_vel.linear.x = 0.;
+            cmd_vel.linear.y = pointControl.getMode() == 'c' ? -calibMode_linear_y : calibMode_linear_y;
+            cmd_vel.angular.z = 0.;
+
+            navMec_pub.publish(cmd_vel);
+
+            /* If we got the goal --> send success info */
+            if (!debug_mode /* DEBUGMODE */ && timeoutReload < 0 /* if we get the goal */) {
+                timeoutReload = timeout;
+
+                if (pointControl.calibMode_clearBuffer()) {
                     trigger = false;
                     nav_mec::navMec_fsrv res_srv;
                     res_srv.request.finished = true;
-                    while(!navMec_cli.call(res_srv));
-                    // Ignore the response
-                    time_before = time_after = 0;
-
+                    while (!navMec_cli.call(res_srv))
+                        ;
+                    time_before = time_after = 0.;
                 }
-            } break;
-        case 'c':
-        case 'i': {
-                timeoutReload -= time_diff;
-
-                cmd_vel.linear.x = 0.;
-                cmd_vel.linear.y = pointControl.getMode() == 'c' ? -calibMode_linear_y : calibMode_linear_y;
-                cmd_vel.angular.z = 0;
-
-                navMec_pub.publish(cmd_vel);
-
-                /* If we got the goal --> send success info */
-                if(!debug_mode /* DEBUGMODE */ && timeoutReload < 0 /* if we get the goal */){
-                    timeoutReload = timeout;
-
-                    if(pointControl.calibMode_clearBuffer()){
-                        trigger = false;
-                        nav_mec::navMec_fsrv res_srv;
-                        res_srv.request.finished = true;
-                        while(!navMec_cli.call(res_srv));
-                        time_before = time_after = 0;
-                    }
-
-                }
-            } break;
-        default: break;
+            }
+        } break;
+        default:
+            break;
     }
+
+    ROS_INFO_STREAM("Current velocity : (" << cmd_vel.linear.x << ", " << cmd_vel.linear.y << ", " << cmd_vel.angular.z << ")");
 
     // ROS_DEBUG_STREAM("Current mode : " << pointControl.getMode());
 }
 
-void subCBPP(const localization::Locate::ConstPtr msg){
+void subCBPP(const localization::Locate::ConstPtr msg) {
     geometry_msgs::Twist cmd_vel;
-    static double time_before = 0;
-    static double time_after = 0;
-    if(!time_before){
+    static double time_before = 0.;
+    static double time_after = 0.;
+    if (!time_before) {
         time_before = ros::Time::now().toSec();
+        cmd_vel.linear.x = 0.;
+        cmd_vel.linear.y = 0.;
+        cmd_vel.angular.z = 0.;
         navMec_pub.publish(cmd_vel);
         return;
     }
@@ -140,7 +145,7 @@ void subCBPP(const localization::Locate::ConstPtr msg){
     /* Get time different (Here just for calculate proper delta velocity) */
     time_after = ros::Time::now().toSec();
     double time_diff = time_after - time_before;
-    time_before = ros::Time::now().toSec();
+    time_before = time_after;
 
     /* Change geometry msgs to Vector3 */
     Vector3 location(msg->PositionX, msg->PositionY, msg->PositionOmega);
@@ -151,9 +156,8 @@ void subCBPP(const localization::Locate::ConstPtr msg){
     navMec_pub.publish(cmd_vel);
 }
 
-
 // --- Need to be removed --- S
-void constructVectors(){
+void constructVectors() {
     vectors[0].setxyz(0., -0.5, 0.);
     vectors[1].setxyz(0.97, -0.2, 0);
     vectors[2].setxyz(0.97, -0.65, 0);

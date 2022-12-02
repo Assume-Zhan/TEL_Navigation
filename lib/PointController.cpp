@@ -230,9 +230,9 @@ geometry_msgs::Twist PointController::get_vgoal(Vector3 location_vector, Vector3
     //                                                       abs(this->ErrorVector.theta));
     // ROS_INFO("State : %d, prev : %lf, Car ang : %lf\n", this->CarState_angular, prev_omega, this->CarAngular_vel);
     // ROS_INFO("State : %d\n", this->CarState_linear);
-    ROS_INFO_STREAM("ERROR THETA : " << this->ErrorVector.theta << ", DIR : " << this->orientation_dir);
-    ROS_INFO_STREAM("CAR_ANG_VEL : " << this->CarAngular_vel);
-    ROS_INFO_STREAM("PREVIOUS omega : " << prev_omega);
+    // ROS_INFO_STREAM("ERROR THETA : " << this->ErrorVector.theta << ", DIR : " << this->orientation_dir);
+    // ROS_INFO_STREAM("CAR_ANG_VEL : " << this->CarAngular_vel);
+    // ROS_INFO_STREAM("PREVIOUS omega : " << prev_omega);
 
     return cmd_vel;
 }
